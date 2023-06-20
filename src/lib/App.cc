@@ -2,14 +2,40 @@
 #include "App.hh"
 
 namespace pge {
+constexpr auto TEXTURE_PIXELS_SIZE = 64;
 
-// https://opengameart.org/content/tiny-16-basic
-constexpr auto DEFAULT_TEXTURE_PACK_FILE_PATH = "data/tiles/default.png";
+inline auto spriteIdFromTerrain(const pharaoh::Tile &tile) noexcept -> int
+{
+  switch (tile.type)
+  {
+    case pharaoh::terrain::Type::WATER:
+      return 0;
+    case pharaoh::terrain::Type::LAND:
+      return tile.floodable ? 2 : 1;
+    default:
+      return 1;
+  }
+}
 
-constexpr auto DEFAULT_TEXTURE_PACK_WIDTH_IN_TILES  = 8;
-constexpr auto DEFAULT_TEXTURE_PACK_HEIGHT_IN_TILES = 13;
-
-constexpr auto DEFAULT_TEXTURE_PACK_TILE_SIZE_IN_PIXELS = 16;
+inline auto spriteIdFromBuilding(const pharaoh::building::Type &type) noexcept -> int
+{
+  switch (type)
+  {
+    case pharaoh::building::Type::ROAD:
+      return 0;
+    case pharaoh::building::Type::HOUSE:
+      return 1;
+    case pharaoh::building::Type::GRANARY:
+      return 4;
+    case pharaoh::building::Type::FARM_FIG:
+      return 3;
+    case pharaoh::building::Type::BAZAAR:
+      return 2;
+    case pharaoh::building::Type::RUIN:
+    default:
+      return 5;
+  }
+}
 
 App::App(const AppDesc &desc)
   : PGEApp(desc)
@@ -97,19 +123,23 @@ void App::loadResources()
   // now to achieve it.
   setLayerTint(Layer::Draw, olc::Pixel(255, 255, 255, alpha::SemiOpaque));
 
-  auto pack = sprites::PackDesc{.file = DEFAULT_TEXTURE_PACK_FILE_PATH,
-                                .sSize{DEFAULT_TEXTURE_PACK_TILE_SIZE_IN_PIXELS,
-                                       DEFAULT_TEXTURE_PACK_TILE_SIZE_IN_PIXELS},
-                                .layout{DEFAULT_TEXTURE_PACK_WIDTH_IN_TILES,
-                                        DEFAULT_TEXTURE_PACK_HEIGHT_IN_TILES}};
+  sprites::PackDesc packTerrain;
+  packTerrain.file   = "data/tiles/terrain.png";
+  packTerrain.sSize  = {TEXTURE_PIXELS_SIZE, TEXTURE_PIXELS_SIZE};
+  packTerrain.layout = {3, 1};
+  m_terrainPackId    = m_packs->registerPack(packTerrain);
 
-  m_defaultPackId = m_packs->registerPack(pack);
+  sprites::PackDesc packBuilding;
+  packBuilding.file   = "data/tiles/building.png";
+  packBuilding.sSize  = {TEXTURE_PIXELS_SIZE, TEXTURE_PIXELS_SIZE};
+  packBuilding.layout = {6, 1};
+  m_buildingPackId    = m_packs->registerPack(packBuilding);
 }
 
 void App::loadMenuResources()
 {
   // Generate the game state.
-  m_state = std::make_shared<GameState>(olc::vi2d(ScreenWidth(), ScreenHeight()), Screen::Home);
+  m_state = std::make_shared<GameState>(olc::vi2d(ScreenWidth(), ScreenHeight()), Screen::Game);
 
   m_menus = m_game->generateMenus(ScreenWidth(), ScreenHeight());
 }
@@ -140,7 +170,7 @@ void App::drawDecal(const RenderDesc &res)
     return;
   }
 
-  renderDefaultTexturePack(res.cf);
+  renderMap(res.cf);
 
   SetPixelMode(olc::Pixel::NORMAL);
 }
@@ -237,40 +267,64 @@ inline void App::drawRect(const SpriteDesc &t, const CoordinateFrame &cf)
   FillRectDecal(p, t.radius * cf.tileSize(), t.sprite.tint);
 }
 
-inline void App::renderDefaultTexturePack(const CoordinateFrame &cf)
+inline void App::renderMap(const CoordinateFrame &cf)
 {
-  // Define a color gradient.
-  auto tl = olc::RED;
-  auto tr = olc::GREEN;
+  renderTerrain(cf);
+  renderBuildings(cf);
+}
 
-  auto bl = olc::BLUE;
-  auto br = olc::YELLOW;
+inline void App::renderTerrain(const CoordinateFrame &cf)
+{
+  const auto &city = m_game->map();
 
-  for (int y = 0; y < DEFAULT_TEXTURE_PACK_HEIGHT_IN_TILES; ++y)
+  SpriteDesc t;
+  t.radius      = 1.0f;
+  t.sprite.pack = m_terrainPackId;
+  t.sprite.tint = olc::WHITE;
+
+  t.sprite.sprite.y = 0;
+
+  for (auto y = 0; y < city.h(); ++y)
   {
-    auto interpL = colorGradient(bl,
-                                 tl,
-                                 1.0f * y / DEFAULT_TEXTURE_PACK_HEIGHT_IN_TILES,
-                                 alpha::Opaque);
-    auto interpR = colorGradient(br,
-                                 tr,
-                                 1.0f * y / DEFAULT_TEXTURE_PACK_HEIGHT_IN_TILES,
-                                 alpha::Opaque);
-
-    for (int x = 0; x < DEFAULT_TEXTURE_PACK_WIDTH_IN_TILES; ++x)
+    for (auto x = 0; x < city.w(); ++x)
     {
-      SpriteDesc t;
       t.x = x;
       t.y = y;
 
-      t.radius = 1.0f;
+      const auto &tile  = city.at(x, y);
+      t.sprite.sprite.x = spriteIdFromTerrain(tile);
 
-      t.sprite.pack   = m_defaultPackId;
-      t.sprite.sprite = {x, y};
-      t.sprite.tint   = colorGradient(interpL,
-                                    interpR,
-                                    1.0f * x / DEFAULT_TEXTURE_PACK_WIDTH_IN_TILES,
-                                    alpha::Opaque);
+      drawWarpedSprite(t, cf);
+    }
+  }
+}
+
+inline void App::renderBuildings(const CoordinateFrame &cf)
+{
+  const auto &city = m_game->map();
+
+  SpriteDesc t;
+  t.radius      = 1.0f;
+  t.sprite.pack = m_buildingPackId;
+  t.sprite.tint = olc::WHITE;
+
+  t.sprite.sprite.y = 0;
+
+  for (int y = 0; y < city.h(); ++y)
+  {
+    for (int x = 0; x < city.w(); ++x)
+    {
+      const auto &tile = city.at(x, y);
+      if (!tile.isBuilding())
+      {
+        continue;
+      }
+
+      t.x = x;
+      t.y = y;
+
+      const auto &b     = city.building(tile.buildingId);
+      t.sprite.sprite.x = spriteIdFromBuilding(b.type);
 
       drawWarpedSprite(t, cf);
     }

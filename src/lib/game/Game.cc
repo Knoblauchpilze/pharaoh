@@ -12,7 +12,6 @@ Game::Game()
       true,  // disabled
       false, // terminated
     })
-  , m_menus()
 {
   setService("game");
 }
@@ -62,6 +61,11 @@ void Game::togglePause()
   }
 
   enable(!m_state.paused);
+}
+
+auto Game::map() const noexcept -> const pharaoh::Map &
+{
+  return m_map;
 }
 
 void Game::enable(bool enable)

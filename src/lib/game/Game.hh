@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "Map.hh"
 #include <core_utils/CoreObject.hh>
 #include <core_utils/TimeUtils.hh>
 #include <memory>
@@ -65,6 +66,8 @@ class Game : public utils::CoreObject
   /// @brief - Used to indicate that the world should be resuming its activity. Time
   /// based entities should take actions to be resuming their pathes, motions, etc.
   void resume();
+
+  auto map() const noexcept -> const pharaoh::Map &;
 
   private:
   /// @brief - Used to enable or disable the menus that compose the game. This allows
@@ -134,7 +137,9 @@ class Game : public utils::CoreObject
 
   /// @brief - The menus displaying information about the current state of the
   /// simulation.
-  Menus m_menus;
+  Menus m_menus{};
+
+  pharaoh::Map m_map{};
 };
 
 using GameShPtr = std::shared_ptr<Game>;

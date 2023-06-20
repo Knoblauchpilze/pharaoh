@@ -84,9 +84,9 @@ class App : public PGEApp
   /// position to pixels.
   void drawRect(const SpriteDesc &t, const CoordinateFrame &cf);
 
-  /// @brief - Example method to render the default texture pack.
-  /// @param cf - the coordinate frame to convert from tiles to pixels space.
-  void renderDefaultTexturePack(const CoordinateFrame &cf);
+  void renderMap(const CoordinateFrame &cf);
+  void renderTerrain(const CoordinateFrame &cf);
+  void renderBuildings(const CoordinateFrame &cf);
 
   private:
   /// @brief - The game managed by this application.
@@ -103,8 +103,8 @@ class App : public PGEApp
   /// the game.
   sprites::TexturePackShPtr m_packs;
 
-  /// @brief - Default texture pack identifier.
-  sprites::PackId m_defaultPackId;
+  sprites::PackId m_terrainPackId;
+  sprites::PackId m_buildingPackId;
 };
 
 } // namespace pge

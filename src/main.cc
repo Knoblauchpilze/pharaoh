@@ -1,6 +1,5 @@
 
-/// @brief - Canonical application allowing to instantiate a working PGE process
-/// with configurable hooks to customize the behavior.
+/// @brief - Simplistic clone of the eponymous city building game.
 
 #include "App.hh"
 #include "AppDesc.hh"

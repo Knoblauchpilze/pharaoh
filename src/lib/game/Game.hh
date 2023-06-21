@@ -1,10 +1,11 @@
 
 #pragma once
 
-#include "Map.hh"
+#include "Scenario.hh"
 #include <core_utils/CoreObject.hh>
 #include <core_utils/TimeUtils.hh>
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace pge {
@@ -13,6 +14,32 @@ namespace pge {
 // to use it right away.
 class Menu;
 using MenuShPtr = std::shared_ptr<Menu>;
+
+namespace game {
+/// @brief - An action which can be taken in the game.
+enum class Action
+{
+  BUILD,
+  DEMOLISH
+};
+
+/// @brief - The state of the actions which can be take in the game.
+/// This allows to have structured actions where more than one click
+/// is needed to fully define it. For example when the user clicks
+/// on demolish, we still need to know what to demolish.
+struct State
+{
+  /// @brief - the action currently selected;
+  std::optional<Action> action{};
+
+  /// @brief - optional type of building to combine with the action.
+  std::optional<pharaoh::building::Type> building{};
+
+  /// @brief - the last calendar update.
+  std::optional<utils::TimeStamp> lastCalendarUpdate{};
+};
+
+} // namespace game
 
 class Game : public utils::CoreObject
 {
@@ -68,6 +95,8 @@ class Game : public utils::CoreObject
   void resume();
 
   auto map() const noexcept -> const pharaoh::Map &;
+  void registerAction(const game::Action action,
+                      const std::optional<pharaoh::building::Type> &building) noexcept;
 
   private:
   /// @brief - Used to enable or disable the menus that compose the game. This allows
@@ -78,6 +107,10 @@ class Game : public utils::CoreObject
   /// @brief - Used during the step function and by any process that needs to update
   /// the UI and the text content of menus.
   virtual void updateUI();
+
+  auto generateTopBar(float width, float height) -> std::vector<MenuShPtr>;
+  auto generateConstructionMenu(float width, float height) -> std::vector<MenuShPtr>;
+  auto generateStatusBar(float width, float height) -> std::vector<MenuShPtr>;
 
   private:
   /// @brief - Convenience structure allowing to group information
@@ -130,7 +163,12 @@ class Game : public utils::CoreObject
   /// @brief - Convenience structure allowing to regroup all info about the menu
   /// in a single struct.
   struct Menus
-  {};
+  {
+    MenuShPtr name;
+    MenuShPtr gold;
+    MenuShPtr calendar;
+    MenuShPtr status;
+  };
 
   /// @brief - The definition of the game state.
   State m_state;
@@ -139,7 +177,8 @@ class Game : public utils::CoreObject
   /// simulation.
   Menus m_menus{};
 
-  pharaoh::Map m_map{};
+  pharaoh::Scenario m_scenario{};
+  game::State m_gameState{};
 };
 
 using GameShPtr = std::shared_ptr<Game>;

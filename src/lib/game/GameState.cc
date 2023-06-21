@@ -149,14 +149,18 @@ void GameState::generateHomeScreen(const olc::vi2d &dims)
 
   // Add each option to the screen.
   MenuShPtr m = generateScreenOption(dims, "New game", olc::VERY_DARK_PINK, "new_game", true);
-  m->setSimpleAction([this](Game & /*g*/) { setScreen(Screen::Game); });
+  m->setSimpleAction([this](Game &g) {
+    setScreen(Screen::Game);
+    g.togglePause();
+  });
   m_home->addMenu(m);
 
   m = generateScreenOption(dims, "Load game", olc::VERY_DARK_PINK, "load_game", true);
-  m->setSimpleAction([this](Game & /*g*/) {
+  m->setSimpleAction([this](Game &g) {
     // Refresh the saved games list.
     m_savedGames.refresh();
     setScreen(Screen::LoadGame);
+    g.togglePause();
   });
   m_home->addMenu(m);
 
@@ -179,7 +183,10 @@ void GameState::generateLoadGameScreen(const olc::vi2d &dims)
   m_loadGame->addMenu(m);
 
   m = generateScreenOption(dims, "Back to main screen", olc::VERY_DARK_ORANGE, "back_to_main", true);
-  m->setSimpleAction([this](Game & /*g*/) { setScreen(Screen::Home); });
+  m->setSimpleAction([this](Game &g) {
+    setScreen(Screen::Home);
+    g.pause();
+  });
   m_loadGame->addMenu(m);
 
   m_savedGames.generate(m_loadGame);

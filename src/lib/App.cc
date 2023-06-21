@@ -144,6 +144,7 @@ void App::loadMenuResources()
   m_state = std::make_shared<GameState>(olc::vi2d(ScreenWidth(), ScreenHeight()), Screen::Game);
 
   m_menus = m_game->generateMenus(ScreenWidth(), ScreenHeight());
+  m_game->togglePause();
 }
 
 void App::cleanResources()

@@ -3,7 +3,7 @@
 
 namespace pharaoh::terrain {
 
-auto toString(const Type &t) noexcept -> std::string
+auto str(const Type t) noexcept -> std::string
 {
   switch (t)
   {

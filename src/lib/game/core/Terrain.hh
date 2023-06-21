@@ -12,6 +12,6 @@ enum class Type
   WATER,
 };
 
-auto toString(const Type &t) noexcept -> std::string;
+auto str(const Type t) noexcept -> std::string;
 
 } // namespace pharaoh::terrain

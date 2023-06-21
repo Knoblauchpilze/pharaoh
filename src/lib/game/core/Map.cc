@@ -35,7 +35,7 @@ auto Map::at(const int x, const int y) const -> const Tile &
 
 auto Map::building(const Index id) const -> const Building &
 {
-  if (id >= asIndex(m_buildings.size()))
+  if (!m_buildings.contains(id))
   {
     error("Failed to get building " + std::to_string(id),
           "Only " + std::to_string(m_buildings.size()) + " building(s) defined");
@@ -44,20 +44,50 @@ auto Map::building(const Index id) const -> const Building &
   return m_buildings.at(id);
 }
 
-auto Map::spawn(const int x, const int y, const building::Type &type) -> Index
+auto Map::spawn(const building::Type type, const int x, const int y) -> Index
 {
   auto &tile = at(x, y);
+  if (tile.type == terrain::Type::WATER)
+  {
+    warn("Can't build " + building::str(type), m_coords.str(x, y) + " is water");
+    return INVALID_INDEX;
+  }
   if (tile.isBuilding())
   {
-    warn("Didn't place " + building::toString(type), "Already a building at " + m_coords.str(x, y));
+    warn("Can't build " + building::str(type), m_coords.str(x, y) + " already has a building");
+    return INVALID_INDEX;
+  }
+  if (tile.floodable && !building::isBuildableOnFloodablePlain(type))
+  {
+    warn("Can't build " + building::str(type), m_coords.str(x, y) + " is floodable");
     return INVALID_INDEX;
   }
 
-  tile.buildingId = asIndex(m_buildings.size());
-  auto b          = newBuilding(type);
-  m_buildings.push_back(b);
+  tile.buildingId              = m_nextBuildingId;
+  auto b                       = newBuilding(type);
+  m_buildings[tile.buildingId] = b;
+  ++m_nextBuildingId;
 
   return tile.buildingId;
+}
+
+bool Map::demolish(const int x, const int y)
+{
+  auto &tile = at(x, y);
+  if (!tile.isBuilding())
+  {
+    warn("Nothing to demolish at " + m_coords.str(x, y));
+    return false;
+  }
+
+  if (auto removed = m_buildings.erase(tile.buildingId); removed != 1)
+  {
+    warn("Removed " + std::to_string(removed) + " building(s) with id "
+         + std::to_string(tile.buildingId));
+  }
+
+  tile.buildingId = INVALID_INDEX;
+  return true;
 }
 
 auto Map::at(const int x, const int y) -> Tile &
@@ -103,12 +133,12 @@ void Map::initialize()
   }
 
   // Buildings.
-  spawn(3, 4, building::Type::BAZAAR);
-  spawn(4, 3, building::Type::FARM_FIG);
-  spawn(4, 4, building::Type::GRANARY);
-  spawn(4, 5, building::Type::HOUSE);
-  spawn(5, 6, building::Type::ROAD);
-  spawn(5, 7, building::Type::RUIN);
+  spawn(building::Type::BAZAAR, 3, 4);
+  spawn(building::Type::FARM_FIG, 4, 3);
+  spawn(building::Type::GRANARY, 4, 4);
+  spawn(building::Type::HOUSE, 4, 5);
+  spawn(building::Type::ROAD, 5, 6);
+  spawn(building::Type::RUIN, 5, 7);
 }
 
 } // namespace pharaoh

@@ -16,7 +16,11 @@ enum class Type
   BAZAAR,
 };
 
-auto toString(const Type &t) noexcept -> std::string;
+auto str(const Type t) noexcept -> std::string;
+
+bool isBuildableOnFloodablePlain(const Type t) noexcept;
+
+auto cost(const Type t) noexcept -> int;
 
 } // namespace building
 

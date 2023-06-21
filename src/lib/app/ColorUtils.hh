@@ -59,6 +59,6 @@ constexpr int Transparent = 0;
 /// @brief - Provides a human readable display of a color.
 /// @param p - the pixel to convert to a string.
 /// @return - a human readable representing the color.
-std::string toString(const olc::Pixel &p) noexcept;
+std::string str(const olc::Pixel &p) noexcept;
 
 #include "ColorUtils.hxx"

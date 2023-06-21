@@ -3,7 +3,7 @@
 
 namespace pharaoh {
 namespace building {
-auto toString(const Type &t) noexcept -> std::string
+auto str(const Type t) noexcept -> std::string
 {
   switch (t)
   {
@@ -21,6 +21,44 @@ auto toString(const Type &t) noexcept -> std::string
       return "bazaar";
     default:
       return "unknown";
+  }
+}
+
+bool isBuildableOnFloodablePlain(const Type t) noexcept
+{
+  switch (t)
+  {
+    case Type::FARM_FIG:
+      return true;
+    case Type::RUIN:
+    case Type::ROAD:
+    case Type::HOUSE:
+    case Type::GRANARY:
+    case Type::BAZAAR:
+    default:
+      return false;
+  }
+}
+
+auto cost(const Type t) noexcept -> int
+{
+  // http://www.drislink.com/slink/pharaoh/pharaoh1.htm
+  // https://pharaoh.heavengames.com/buildings/
+  switch (t)
+  {
+    case Type::FARM_FIG:
+      return 40;
+    case Type::ROAD:
+      return 4;
+    case Type::HOUSE:
+      return 10;
+    case Type::GRANARY:
+      return 250;
+    case Type::BAZAAR:
+      return 40;
+    case Type::RUIN:
+    default:
+      return 0;
   }
 }
 } // namespace building

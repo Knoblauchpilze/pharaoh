@@ -196,7 +196,7 @@ std::string SavedGames::generateNewName() const noexcept
   // exist yet in the directory.
   std::string out = m_dir + "/save_" + std::to_string(m_fileIndex) + "." + m_ext;
 
-  while (m_existingFiles.count(out) > 0)
+  while (m_existingFiles.contains(out))
   {
     ++m_fileIndex;
     out = m_dir + "/save_" + std::to_string(m_fileIndex) + "." + m_ext;

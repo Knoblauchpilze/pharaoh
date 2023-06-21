@@ -155,7 +155,7 @@ inline olc::Pixel modulate(const olc::Pixel &in, float factor) noexcept
 
 } // namespace pge
 
-inline std::string toString(const olc::Pixel &p) noexcept
+inline std::string str(const olc::Pixel &p) noexcept
 {
   return std::string("[r: ") + std::to_string(p.r) + ", g: " + std::to_string(p.g)
          + ", b: " + std::to_string(p.b) + ", a: " + std::to_string(p.a) + "]";

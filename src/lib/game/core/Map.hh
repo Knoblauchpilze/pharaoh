@@ -5,6 +5,7 @@
 #include "Coordinate.hh"
 #include "Tile.hh"
 #include <core_utils/CoreObject.hh>
+#include <map>
 #include <vector>
 
 namespace pharaoh {
@@ -19,13 +20,15 @@ class Map : public utils::CoreObject
   auto at(const int x, const int y) const -> const Tile &;
 
   auto building(const Index id) const -> const Building &;
-  auto spawn(const int x, const int y, const building::Type &type) -> Index;
+  auto spawn(const building::Type type, const int x, const int y) -> Index;
+  bool demolish(const int x, const int y);
 
   private:
   Coordinate m_coords;
   std::vector<Tile> m_tiles{};
 
-  std::vector<Building> m_buildings{};
+  Index m_nextBuildingId{};
+  std::map<Index, Building> m_buildings{};
 
   auto at(const int x, const int y) -> Tile &;
   void initialize();

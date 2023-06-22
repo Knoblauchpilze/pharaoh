@@ -22,13 +22,18 @@ bool isBuildableOnFloodablePlain(const Type t) noexcept;
 
 auto cost(const Type t) noexcept -> int;
 
+auto workforce(const Type t) noexcept -> int;
+
 } // namespace building
 
 struct Building
 {
   building::Type type{building::Type::ROAD};
+  int employees{0};
+  int x;
+  int y;
 };
 
-auto newBuilding(const building::Type type) noexcept -> Building;
+auto newBuilding(const building::Type type, const int x, const int y) noexcept -> Building;
 
 } // namespace pharaoh

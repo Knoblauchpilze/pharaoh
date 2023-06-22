@@ -34,7 +34,7 @@ auto Scenario::gold() const noexcept -> int
 
 void Scenario::step()
 {
-  m_date.nextDay();
+  m_date.tick();
   info("Stepping to " + m_date.str());
 }
 

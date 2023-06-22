@@ -14,11 +14,9 @@ class Calendar
   auto y() const noexcept -> int;
   auto m() const noexcept -> int;
   auto d() const noexcept -> int;
+  auto t() const noexcept -> int;
 
-  void nextDay();
-  void nextMonth();
-  void nextYear();
-  void increment(int day, int month, int year) noexcept;
+  void tick();
 
   auto str(const char separator = '/') const noexcept -> std::string;
 
@@ -26,6 +24,11 @@ class Calendar
   int m_year{1};
   int m_month{1};
   int m_day{1};
+  int m_tick{0};
+
+  void nextDay();
+  void nextMonth();
+  void nextYear();
 };
 
 } // namespace pharaoh

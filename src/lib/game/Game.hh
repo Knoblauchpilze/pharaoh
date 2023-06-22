@@ -2,6 +2,7 @@
 #pragma once
 
 #include "Scenario.hh"
+#include "TimeManager.hh"
 #include <core_utils/CoreObject.hh>
 #include <core_utils/TimeUtils.hh>
 #include <memory>
@@ -23,6 +24,8 @@ enum class Action
   DEMOLISH
 };
 
+constexpr auto TICK_INTERVAL_IN_SECONDS = 1.0f;
+
 /// @brief - The state of the actions which can be take in the game.
 /// This allows to have structured actions where more than one click
 /// is needed to fully define it. For example when the user clicks
@@ -35,8 +38,7 @@ struct State
   /// @brief - optional type of building to combine with the action.
   std::optional<pharaoh::building::Type> building{};
 
-  /// @brief - the last calendar update.
-  std::optional<utils::TimeStamp> lastCalendarUpdate{};
+  pharaoh::TimeManager time{game::TICK_INTERVAL_IN_SECONDS};
 };
 
 } // namespace game

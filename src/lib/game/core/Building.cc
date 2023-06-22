@@ -61,11 +61,31 @@ auto cost(const Type t) noexcept -> int
       return 0;
   }
 }
+
+auto workforce(const Type t) noexcept -> int
+{
+  // https://pharaoh.heavengames.com/buildings/
+  switch (t)
+  {
+    case Type::FARM_FIG:
+      return 10;
+    case Type::GRANARY:
+      return 12;
+    case Type::BAZAAR:
+      return 5;
+    case Type::RUIN:
+    case Type::ROAD:
+    case Type::HOUSE:
+    default:
+      return 0;
+  }
+}
+
 } // namespace building
 
-auto newBuilding(const building::Type type) noexcept -> Building
+auto newBuilding(const building::Type type, const int x, const int y) noexcept -> Building
 {
-  return Building{.type = type};
+  return Building{.type = type, .x = x, .y = y};
 }
 
 } // namespace pharaoh

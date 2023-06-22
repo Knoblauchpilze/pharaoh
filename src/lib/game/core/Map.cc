@@ -37,8 +37,7 @@ auto Map::building(const Index id) const -> const Building &
 {
   if (!m_buildings.contains(id))
   {
-    error("Failed to get building " + std::to_string(id),
-          "Only " + std::to_string(m_buildings.size()) + " building(s) defined");
+    error("Failed to get building " + std::to_string(id));
   }
 
   return m_buildings.at(id);
@@ -64,7 +63,8 @@ auto Map::spawn(const building::Type type, const int x, const int y) -> Index
   }
 
   tile.buildingId              = m_nextBuildingId;
-  auto b                       = newBuilding(type);
+  auto b                       = newBuilding(type, x, y);
+  b.employees                  = building::workforce(type);
   m_buildings[tile.buildingId] = b;
   ++m_nextBuildingId;
 
@@ -88,6 +88,38 @@ bool Map::demolish(const int x, const int y)
 
   tile.buildingId = INVALID_INDEX;
   return true;
+}
+
+bool Map::isBuildingConnectedToRoad(const Index id) const
+{
+  if (!m_buildings.contains(id))
+  {
+    error("Failed to assert building " + std::to_string(id) + " connectivity");
+  }
+
+  const auto &b = m_buildings.at(id);
+
+  return m_roadNewtork.isConnectedToRoad(b.x, b.y);
+}
+
+auto Map::citizen(const Index id) const -> const Citizen &
+{
+  if (!m_citizens.contains(id))
+  {
+    error("Failed to get citizen " + std::to_string(id));
+  }
+
+  return m_citizens.at(id);
+}
+
+auto Map::spawn(const citizen::Type type, const int x, const int y) -> Index
+{
+  auto id        = m_nextCitizenId;
+  auto c         = newCitizen(type, 1.0f * x, 1.0f * y);
+  m_citizens[id] = c;
+  ++m_nextCitizenId;
+
+  return id;
 }
 
 auto Map::at(const int x, const int y) -> Tile &

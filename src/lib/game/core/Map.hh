@@ -2,7 +2,9 @@
 #pragma once
 
 #include "Building.hh"
+#include "Citizen.hh"
 #include "Coordinate.hh"
+#include "RoadNetwork.hh"
 #include "Tile.hh"
 #include <core_utils/CoreObject.hh>
 #include <map>
@@ -22,6 +24,10 @@ class Map : public utils::CoreObject
   auto building(const Index id) const -> const Building &;
   auto spawn(const building::Type type, const int x, const int y) -> Index;
   bool demolish(const int x, const int y);
+  bool isBuildingConnectedToRoad(const Index id) const;
+
+  auto citizen(const Index id) const -> const Citizen &;
+  auto spawn(const citizen::Type type, const int x, const int y) -> Index;
 
   private:
   Coordinate m_coords;
@@ -29,6 +35,11 @@ class Map : public utils::CoreObject
 
   Index m_nextBuildingId{};
   std::map<Index, Building> m_buildings{};
+
+  RoadNetwork m_roadNewtork{};
+
+  Index m_nextCitizenId{};
+  std::map<Index, Citizen> m_citizens{};
 
   auto at(const int x, const int y) -> Tile &;
   void initialize();

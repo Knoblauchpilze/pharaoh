@@ -85,7 +85,7 @@ auto workforce(const Type t) noexcept -> int
 
 auto newBuilding(const building::Type type, const int x, const int y) noexcept -> Building
 {
-  return Building{.type = type, .x = x, .y = y};
+  return Building{.type = type, .x = x, .y = y, .xSpawn = 1.0f * x, .ySpawn = 1.0f * y};
 }
 
 } // namespace pharaoh

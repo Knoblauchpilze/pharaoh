@@ -8,6 +8,7 @@ target_sources (pharaoh_lib PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/Building.cc
 	${CMAKE_CURRENT_SOURCE_DIR}/Tile.cc
 	${CMAKE_CURRENT_SOURCE_DIR}/RoadNetwork.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/CitizenGenerator.cc
 	${CMAKE_CURRENT_SOURCE_DIR}/Map.cc
 	${CMAKE_CURRENT_SOURCE_DIR}/Scenario.cc
 	)

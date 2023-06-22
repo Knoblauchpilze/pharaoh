@@ -1,10 +1,14 @@
 
 #include "Scenario.hh"
+#include "CitizenGenerator.hh"
 #include <maths_utils/Point2.hh>
 
 namespace pharaoh {
-
 constexpr auto ALLOWED_OVERDRAFT = -150;
+enum Tick
+{
+  CITIZEN_GENERATION_TICK = 0,
+};
 
 Scenario::Scenario()
   : utils::CoreObject("scenario")
@@ -34,8 +38,19 @@ auto Scenario::gold() const noexcept -> int
 
 void Scenario::step()
 {
+  info("Processing tick " + m_date.str());
+  CitizenGenerator cg{};
+
+  switch (m_date.t())
+  {
+    case CITIZEN_GENERATION_TICK:
+      cg.generate(m_map);
+      break;
+    default:
+      break;
+  }
+
   m_date.tick();
-  info("Stepping to " + m_date.str());
 }
 
 void Scenario::spawn(const building::Type type, float x, float y)

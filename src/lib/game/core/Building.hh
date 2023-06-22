@@ -32,6 +32,11 @@ struct Building
   int employees{0};
   int x;
   int y;
+
+  /// The variables below are updated during each tick of the game.
+  bool hasRoadAccess{false};
+  float xSpawn;
+  float ySpawn;
 };
 
 auto newBuilding(const building::Type type, const int x, const int y) noexcept -> Building;

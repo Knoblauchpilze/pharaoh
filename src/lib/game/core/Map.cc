@@ -68,6 +68,8 @@ auto Map::spawn(const building::Type type, const int x, const int y) -> Index
   m_buildings[tile.buildingId] = b;
   ++m_nextBuildingId;
 
+  handleBuildingSpawned(b);
+
   return tile.buildingId;
 }
 
@@ -80,6 +82,7 @@ bool Map::demolish(const int x, const int y)
     return false;
   }
 
+  const Building b = m_buildings.at(tile.buildingId);
   if (auto removed = m_buildings.erase(tile.buildingId); removed != 1)
   {
     warn("Removed " + std::to_string(removed) + " building(s) with id "
@@ -87,6 +90,9 @@ bool Map::demolish(const int x, const int y)
   }
 
   tile.buildingId = INVALID_INDEX;
+
+  handleBuildingDemolished(b);
+
   return true;
 }
 
@@ -102,6 +108,26 @@ bool Map::isBuildingConnectedToRoad(const Index id) const
   return m_roadNewtork.isConnectedToRoad(b.x, b.y);
 }
 
+auto Map::spawnPointForBuilding(const Index id) const noexcept -> utils::Point2f
+{
+  if (!m_buildings.contains(id))
+  {
+    error("Failed to find building " + std::to_string(id) + " spawn point");
+  }
+
+  const auto &b = m_buildings.at(id);
+
+  return utils::Point2f{1.0f * b.x, 1.0f * b.y};
+}
+
+void Map::process(const BuildingProcess &process)
+{
+  for (auto &b : m_buildings)
+  {
+    process(b.first, b.second, *this);
+  }
+}
+
 auto Map::citizen(const Index id) const -> const Citizen &
 {
   if (!m_citizens.contains(id))
@@ -112,10 +138,10 @@ auto Map::citizen(const Index id) const -> const Citizen &
   return m_citizens.at(id);
 }
 
-auto Map::spawn(const citizen::Type type, const int x, const int y) -> Index
+auto Map::spawn(const citizen::Type type, const float x, const float y) -> Index
 {
   auto id        = m_nextCitizenId;
-  auto c         = newCitizen(type, 1.0f * x, 1.0f * y);
+  auto c         = newCitizen(type, x, y);
   m_citizens[id] = c;
   ++m_nextCitizenId;
 
@@ -171,6 +197,22 @@ void Map::initialize()
   spawn(building::Type::HOUSE, 4, 5);
   spawn(building::Type::ROAD, 5, 6);
   spawn(building::Type::RUIN, 5, 7);
+}
+
+void Map::handleBuildingSpawned(const Building &b) noexcept
+{
+  if (b.type == building::Type::ROAD)
+  {
+    m_roadNewtork.addToNetwork(b.x, b.y);
+  }
+}
+
+void Map::handleBuildingDemolished(const Building &b) noexcept
+{
+  if (b.type == building::Type::ROAD)
+  {
+    m_roadNewtork.removeFromNetwork(b.x, b.y);
+  }
 }
 
 } // namespace pharaoh

@@ -97,7 +97,7 @@ void Game::performAction(float x, float y)
   }
 }
 
-bool Game::step(float /*tDelta*/)
+bool Game::step(float tDelta)
 {
   // When the game is paused it is not over yet.
   if (m_state.paused)
@@ -105,15 +105,9 @@ bool Game::step(float /*tDelta*/)
     return true;
   }
 
-  const auto tNow = utils::now();
-  if (!m_gameState.lastCalendarUpdate.has_value())
-  {
-    m_gameState.lastCalendarUpdate = tNow;
-  }
-  else if (utils::diffInMs(*m_gameState.lastCalendarUpdate, tNow) > CALENDAR_UPDATE_IN_MS)
+  if (m_gameState.time.step(tDelta))
   {
     m_scenario.step();
-    m_gameState.lastCalendarUpdate = tNow;
   }
 
   updateUI();

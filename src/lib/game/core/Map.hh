@@ -7,10 +7,15 @@
 #include "RoadNetwork.hh"
 #include "Tile.hh"
 #include <core_utils/CoreObject.hh>
+#include <functional>
 #include <map>
+#include <maths_utils/Point2.hh>
 #include <vector>
 
 namespace pharaoh {
+
+class Map;
+using BuildingProcess = std::function<void(const Index, Building &, Map &)>;
 
 class Map : public utils::CoreObject
 {
@@ -25,9 +30,11 @@ class Map : public utils::CoreObject
   auto spawn(const building::Type type, const int x, const int y) -> Index;
   bool demolish(const int x, const int y);
   bool isBuildingConnectedToRoad(const Index id) const;
+  auto spawnPointForBuilding(const Index id) const noexcept -> utils::Point2f;
+  void process(const BuildingProcess &process);
 
   auto citizen(const Index id) const -> const Citizen &;
-  auto spawn(const citizen::Type type, const int x, const int y) -> Index;
+  auto spawn(const citizen::Type type, const float x, const float y) -> Index;
 
   private:
   Coordinate m_coords;
@@ -43,6 +50,9 @@ class Map : public utils::CoreObject
 
   auto at(const int x, const int y) -> Tile &;
   void initialize();
+
+  void handleBuildingSpawned(const Building &b) noexcept;
+  void handleBuildingDemolished(const Building &b) noexcept;
 };
 
 } // namespace pharaoh

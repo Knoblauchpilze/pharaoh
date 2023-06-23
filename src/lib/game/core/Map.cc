@@ -33,6 +33,16 @@ auto Map::at(const int x, const int y) const -> const Tile &
   return m_tiles.at(m_coords.linear(x, y));
 }
 
+auto Map::citizensBegin() const noexcept -> std::map<Index, Citizen>::const_iterator
+{
+  return m_citizens.begin();
+}
+
+auto Map::citizensEnd() const noexcept -> std::map<Index, Citizen>::const_iterator
+{
+  return m_citizens.end();
+}
+
 auto Map::building(const Index id) const -> const Building &
 {
   if (!m_buildings.contains(id))

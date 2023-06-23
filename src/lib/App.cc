@@ -39,6 +39,22 @@ inline auto spriteIdFromBuilding(const pharaoh::building::Type &type) noexcept -
   }
 }
 
+inline auto spriteIdFromCitizen(const pharaoh::citizen::Type &type) noexcept -> int
+{
+  switch (type)
+  {
+    case pharaoh::citizen::Type::GRANARY:
+      return 1;
+    case pharaoh::citizen::Type::FARMER:
+      return 2;
+    case pharaoh::citizen::Type::BAZAAR:
+      return 3;
+    case pharaoh::citizen::Type::WALKER:
+    default:
+      return 0;
+  }
+}
+
 App::App(const AppDesc &desc)
   : PGEApp(desc)
   , m_game(nullptr)
@@ -136,6 +152,12 @@ void App::loadResources()
   packBuilding.sSize  = {TEXTURE_PIXELS_SIZE, TEXTURE_PIXELS_SIZE};
   packBuilding.layout = {6, 1};
   m_buildingPackId    = m_packs->registerPack(packBuilding);
+
+  sprites::PackDesc packCitizen;
+  packCitizen.file   = "data/tiles/citizen.png";
+  packCitizen.sSize  = {TEXTURE_PIXELS_SIZE, TEXTURE_PIXELS_SIZE};
+  packCitizen.layout = {6, 1};
+  m_citizenPackId    = m_packs->registerPack(packCitizen);
 }
 
 void App::loadMenuResources()
@@ -250,7 +272,7 @@ void App::drawDebug(const RenderDesc &res)
   SetPixelMode(olc::Pixel::NORMAL);
 }
 
-void App::renderCursor(const RenderDesc &res)
+inline void App::renderCursor(const RenderDesc &res)
 {
   olc::vf2d it;
   const auto mouseTilePosition = res.cf.pixelsToTilesAndIntra(GetMousePos(), &it);
@@ -310,6 +332,7 @@ inline void App::renderMap(const CoordinateFrame &cf)
 {
   renderTerrain(cf);
   renderBuildings(cf);
+  renderCitizens(cf);
 }
 
 inline void App::renderTerrain(const CoordinateFrame &cf)
@@ -367,6 +390,34 @@ inline void App::renderBuildings(const CoordinateFrame &cf)
 
       drawWarpedSprite(t, cf);
     }
+  }
+}
+
+inline void App::renderCitizens(const CoordinateFrame &cf)
+{
+  const auto &city = m_game->map();
+
+  auto it        = city.citizensBegin();
+  const auto end = city.citizensEnd();
+
+  SpriteDesc t;
+  t.radius      = 1.0f;
+  t.sprite.pack = m_citizenPackId;
+  t.sprite.tint = olc::WHITE;
+
+  t.sprite.sprite.y = 0;
+
+  while (it != end)
+  {
+    const auto &c = it->second;
+    t.x           = c.x;
+    t.y           = c.y;
+
+    t.sprite.sprite.x = spriteIdFromCitizen(c.type);
+
+    drawWarpedSprite(t, cf);
+
+    ++it;
   }
 }
 

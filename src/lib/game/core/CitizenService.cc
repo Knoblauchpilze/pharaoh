@@ -32,7 +32,7 @@ void CitizenService::generate(Map &city) const noexcept
 
   city.process([this](const Index id, Building &b, Map &m) {
     const auto task = determineTaskFor(b, m);
-    if (const auto citizen = shouldSpawnFor(b, task, m))
+    if (const auto citizen = shouldSpawnFor(id, b, task, m))
     {
       m.spawn(*citizen, b.xSpawn, b.ySpawn, {id});
       log("Spawned " + citizen::str(*citizen) + " for " + building::str(b.type) + " at "
@@ -52,12 +52,15 @@ auto CitizenService::determineTaskFor(const Building &b, const Map & /*m*/) cons
   return {};
 }
 
-auto CitizenService::shouldSpawnFor(const Building &b,
+auto CitizenService::shouldSpawnFor(const Index id,
+                                    const Building &b,
                                     const std::optional<BuildingTask> & /*task*/,
-                                    const Map & /*m*/) const noexcept
-  -> std::optional<citizen::Type>
+                                    const Map &m) const noexcept -> std::optional<citizen::Type>
 {
-  if (static_cast<int>(b.workers.size()) >= building::maxCitizensFor(b.type))
+  const auto enoughCitizensAlready = static_cast<int>(b.workers.size())
+                                     >= building::maxCitizensFor(b.type);
+  const auto noRoadAccess = !m.isBuildingConnectedToRoad(id);
+  if (enoughCitizensAlready || noRoadAccess)
   {
     return {};
   }

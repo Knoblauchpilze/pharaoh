@@ -21,7 +21,8 @@ class CitizenService : public utils::CoreObject
 
   auto determineTaskFor(const Building &b, const Map &m) const noexcept
     -> std::optional<BuildingTask>;
-  auto shouldSpawnFor(const Building &b,
+  auto shouldSpawnFor(const Index id,
+                      const Building &b,
                       const std::optional<BuildingTask> &task,
                       const Map &m) const noexcept -> std::optional<citizen::Type>;
 

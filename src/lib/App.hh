@@ -98,6 +98,7 @@ class App : public PGEApp
   void renderMap(const CoordinateFrame &cf);
   void renderTerrain(const CoordinateFrame &cf);
   void renderBuildings(const CoordinateFrame &cf);
+  void renderCitizens(const CoordinateFrame &cf);
 
   private:
   /// @brief - The game managed by this application.
@@ -116,6 +117,7 @@ class App : public PGEApp
 
   sprites::PackId m_terrainPackId;
   sprites::PackId m_buildingPackId;
+  sprites::PackId m_citizenPackId;
 };
 
 } // namespace pge

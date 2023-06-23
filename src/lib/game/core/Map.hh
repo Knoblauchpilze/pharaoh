@@ -25,6 +25,8 @@ class Map : public utils::CoreObject
   auto w() const noexcept -> int;
   auto h() const noexcept -> int;
   auto at(const int x, const int y) const -> const Tile &;
+  auto citizensBegin() const noexcept -> std::map<Index, Citizen>::const_iterator;
+  auto citizensEnd() const noexcept -> std::map<Index, Citizen>::const_iterator;
 
   auto building(const Index id) const -> const Building &;
   auto spawn(const building::Type type, const int x, const int y) -> Index;

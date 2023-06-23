@@ -1,7 +1,9 @@
 
 #pragma once
 
+#include "Index.hh"
 #include <string>
+#include <unordered_set>
 
 namespace pharaoh {
 namespace building {
@@ -19,10 +21,10 @@ enum class Type
 auto str(const Type t) noexcept -> std::string;
 
 bool isBuildableOnFloodablePlain(const Type t) noexcept;
-
 auto cost(const Type t) noexcept -> int;
-
 auto workforce(const Type t) noexcept -> int;
+auto minimumHousesToGetWorkforce(const Type t) noexcept -> int;
+auto maxCitizensFor(const Type t) noexcept -> int;
 
 } // namespace building
 
@@ -37,6 +39,9 @@ struct Building
   bool hasRoadAccess{false};
   float xSpawn;
   float ySpawn;
+  int population{0};
+  int housesInReach{0};
+  std::unordered_set<Index> workers{};
 };
 
 auto newBuilding(const building::Type type, const int x, const int y) noexcept -> Building;

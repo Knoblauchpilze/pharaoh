@@ -1,6 +1,6 @@
 
 #include "Scenario.hh"
-#include "CitizenGenerator.hh"
+#include "CitizenService.hh"
 #include <maths_utils/Point2.hh>
 
 namespace pharaoh {
@@ -39,7 +39,7 @@ auto Scenario::gold() const noexcept -> int
 void Scenario::step()
 {
   info("Processing tick " + m_date.str());
-  CitizenGenerator cg{};
+  CitizenService cg{};
 
   switch (m_date.t())
   {

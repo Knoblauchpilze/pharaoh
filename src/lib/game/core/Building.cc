@@ -16,7 +16,7 @@ auto str(const Type t) noexcept -> std::string
     case Type::GRANARY:
       return "granary";
     case Type::FARM_FIG:
-      return "fig farm";
+      return "fig_farm";
     case Type::BAZAAR:
       return "bazaar";
     default:
@@ -79,6 +79,24 @@ auto workforce(const Type t) noexcept -> int
     default:
       return 0;
   }
+}
+
+auto minimumHousesToGetWorkforce(const Type t) noexcept -> int
+{
+  switch (t)
+  {
+    case Type::GRANARY:
+    case Type::FARM_FIG:
+    case Type::BAZAAR:
+      return 1;
+    default:
+      return 0;
+  }
+}
+
+auto maxCitizensFor(const Type /*t*/) noexcept -> int
+{
+  return 1;
 }
 
 } // namespace building

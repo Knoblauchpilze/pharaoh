@@ -19,23 +19,23 @@ inline auto spriteIdFromTerrain(const pharaoh::Tile &tile) noexcept -> int
   }
 }
 
-inline auto spriteIdFromBuilding(const pharaoh::building::Type &type) noexcept -> int
+inline auto spriteIdFromBuilding(const pharaoh::Building &b) noexcept -> olc::vi2d
 {
-  switch (type)
+  switch (b.type)
   {
     case pharaoh::building::Type::ROAD:
-      return 0;
+      return olc::vi2d{0, 0};
     case pharaoh::building::Type::HOUSE:
-      return 1;
+      return olc::vi2d{1, b.population > 0 ? 0 : 1};
     case pharaoh::building::Type::GRANARY:
-      return 4;
+      return olc::vi2d{4, 0};
     case pharaoh::building::Type::FARM_FIG:
-      return 3;
+      return olc::vi2d{3, 0};
     case pharaoh::building::Type::BAZAAR:
-      return 2;
+      return olc::vi2d{2, 0};
     case pharaoh::building::Type::RUIN:
     default:
-      return 5;
+      return olc::vi2d{5, 0};
   }
 }
 
@@ -49,7 +49,7 @@ inline auto spriteIdFromCitizen(const pharaoh::citizen::Type &type) noexcept -> 
       return 2;
     case pharaoh::citizen::Type::BAZAAR:
       return 3;
-    case pharaoh::citizen::Type::WALKER:
+    case pharaoh::citizen::Type::LABOR_SEEKER:
     default:
       return 0;
   }
@@ -150,7 +150,7 @@ void App::loadResources()
   sprites::PackDesc packBuilding;
   packBuilding.file   = "data/tiles/building.png";
   packBuilding.sSize  = {TEXTURE_PIXELS_SIZE, TEXTURE_PIXELS_SIZE};
-  packBuilding.layout = {6, 1};
+  packBuilding.layout = {6, 2};
   m_buildingPackId    = m_packs->registerPack(packBuilding);
 
   sprites::PackDesc packCitizen;
@@ -370,8 +370,6 @@ inline void App::renderBuildings(const CoordinateFrame &cf)
   t.sprite.pack = m_buildingPackId;
   t.sprite.tint = olc::WHITE;
 
-  t.sprite.sprite.y = 0;
-
   for (int y = 0; y < city.h(); ++y)
   {
     for (int x = 0; x < city.w(); ++x)
@@ -386,7 +384,9 @@ inline void App::renderBuildings(const CoordinateFrame &cf)
       t.y = y;
 
       const auto &b     = city.building(tile.buildingId);
-      t.sprite.sprite.x = spriteIdFromBuilding(b.type);
+      const auto sp     = spriteIdFromBuilding(b);
+      t.sprite.sprite.x = sp.x;
+      t.sprite.sprite.y = sp.y;
 
       drawWarpedSprite(t, cf);
     }

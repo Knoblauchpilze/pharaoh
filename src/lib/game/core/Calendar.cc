@@ -3,7 +3,7 @@
 #include <iomanip>
 
 namespace pharaoh {
-constexpr auto TICKS_IN_A_DAY   = 50;
+constexpr auto TICKS_IN_A_DAY   = 5;
 constexpr auto DAYS_IN_A_MONTH  = 20;
 constexpr auto MONTHS_IN_A_YEAR = 12;
 

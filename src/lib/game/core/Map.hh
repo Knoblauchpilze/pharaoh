@@ -10,6 +10,7 @@
 #include <functional>
 #include <map>
 #include <maths_utils/Point2.hh>
+#include <optional>
 #include <vector>
 
 namespace pharaoh {
@@ -36,7 +37,10 @@ class Map : public utils::CoreObject
   void process(const BuildingProcess &process);
 
   auto citizen(const Index id) const -> const Citizen &;
-  auto spawn(const citizen::Type type, const float x, const float y) -> Index;
+  auto spawn(const citizen::Type type,
+             const float x,
+             const float y,
+             std::optional<Index> homeBuilding) -> Index;
 
   private:
   Coordinate m_coords;
@@ -52,6 +56,8 @@ class Map : public utils::CoreObject
 
   auto at(const int x, const int y) -> Tile &;
   void initialize();
+
+  auto building(const Index id) -> Building &;
 
   void handleBuildingSpawned(const Building &b) noexcept;
   void handleBuildingDemolished(const Building &b) noexcept;

@@ -148,10 +148,19 @@ auto Map::citizen(const Index id) const -> const Citizen &
   return m_citizens.at(id);
 }
 
-auto Map::spawn(const citizen::Type type, const float x, const float y) -> Index
+auto Map::spawn(const citizen::Type type,
+                const float x,
+                const float y,
+                std::optional<Index> homeBuilding) -> Index
 {
-  auto id        = m_nextCitizenId;
-  auto c         = newCitizen(type, x, y);
+  auto id = m_nextCitizenId;
+  auto c  = newCitizen(type, x, y);
+  if (homeBuilding)
+  {
+    c.homeBuilding = *homeBuilding;
+    auto &b        = building(c.homeBuilding);
+    b.workers.insert(id);
+  }
   m_citizens[id] = c;
   ++m_nextCitizenId;
 
@@ -207,6 +216,16 @@ void Map::initialize()
   spawn(building::Type::HOUSE, 4, 5);
   spawn(building::Type::ROAD, 5, 6);
   spawn(building::Type::RUIN, 5, 7);
+}
+
+auto Map::building(const Index id) -> Building &
+{
+  if (!m_buildings.contains(id))
+  {
+    error("Failed to get building " + std::to_string(id));
+  }
+
+  return m_buildings.at(id);
 }
 
 void Map::handleBuildingSpawned(const Building &b) noexcept

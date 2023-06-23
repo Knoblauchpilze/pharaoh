@@ -1,12 +1,10 @@
 
 #pragma once
 
+#include "Index.hh"
 #include "Terrain.hh"
 
 namespace pharaoh {
-
-using Index                  = int;
-constexpr auto INVALID_INDEX = Index{-1};
 
 template<typename T>
 auto asIndex(const T &val) -> Index

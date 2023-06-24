@@ -96,7 +96,7 @@ class Game : public utils::CoreObject
   /// based entities should take actions to be resuming their pathes, motions, etc.
   void resume();
 
-  auto map() const noexcept -> const pharaoh::Map &;
+  auto map() noexcept -> pharaoh::Map &;
   void registerAction(const game::Action action,
                       const std::optional<pharaoh::building::Type> &building) noexcept;
 

@@ -29,10 +29,15 @@ bool Coordinate::valid(int x, int y) const noexcept
   return x >= 0 && y >= 0 && x < w() && y < h();
 }
 
+bool Coordinate::valid(const MapPoint &mp) const noexcept
+{
+  return valid(mp.x, mp.y);
+}
+
 bool Coordinate::valid(int index) const noexcept
 {
-  const auto [x, y] = to2d(index);
-  return valid(x, y);
+  const auto mp = to2d(index);
+  return valid(mp);
 }
 
 auto Coordinate::linear(int x, int y) const noexcept -> int
@@ -40,9 +45,14 @@ auto Coordinate::linear(int x, int y) const noexcept -> int
   return y * w() + x;
 }
 
-auto Coordinate::to2d(int linear) const noexcept -> std::pair<int, int>
+auto Coordinate::linear(const MapPoint &mp) const noexcept -> int
 {
-  return std::make_pair(linear % w(), linear / w());
+  return linear(mp.x, mp.y);
+}
+
+auto Coordinate::to2d(int linear) const noexcept -> MapPoint
+{
+  return MapPoint{.x = linear % w(), .y = linear / w()};
 }
 
 auto Coordinate::str() const noexcept -> std::string

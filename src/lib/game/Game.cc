@@ -155,7 +155,7 @@ void Game::resume()
   m_menus.status->setText("play");
 }
 
-auto Game::map() const noexcept -> const pharaoh::Map &
+auto Game::map() noexcept -> pharaoh::Map &
 {
   return m_scenario.map();
 }
@@ -243,21 +243,6 @@ auto Game::generateConstructionMenu(float width, float height) -> std::vector<Me
   menu = generateMenu({}, dummySize, "House", "house", true);
   menu->setSimpleAction(
     [](Game &g) { g.registerAction(game::Action::BUILD, {pharaoh::building::Type::HOUSE}); });
-  construction->addMenu(menu);
-
-  menu = generateMenu({}, dummySize, "Granary", "granary", true);
-  menu->setSimpleAction(
-    [](Game &g) { g.registerAction(game::Action::BUILD, {pharaoh::building::Type::GRANARY}); });
-  construction->addMenu(menu);
-
-  menu = generateMenu({}, dummySize, "Fig farm", "farm_fig", true);
-  menu->setSimpleAction(
-    [](Game &g) { g.registerAction(game::Action::BUILD, {pharaoh::building::Type::FARM_FIG}); });
-  construction->addMenu(menu);
-
-  menu = generateMenu({}, dummySize, "Bazaar", "bazaar", true);
-  menu->setSimpleAction(
-    [](Game &g) { g.registerAction(game::Action::BUILD, {pharaoh::building::Type::BAZAAR}); });
   construction->addMenu(menu);
 
   menu = generateMenu({},

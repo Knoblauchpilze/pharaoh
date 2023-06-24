@@ -22,7 +22,7 @@ int main(int /*argc*/, char ** /*argv*/)
   {
     logger.logMessage(utils::Level::Notice, "Starting application");
 
-    auto tiles  = pge::CenteredViewport({0.0f, 0.0f}, {4.0f, 3.0f});
+    auto tiles  = pge::CenteredViewport({5.0f, 5.0f}, {18.0f, 13.5f});
     auto pixels = pge::TopLeftViewport({0.0f, 0.0f}, {800.0f, 600.0f});
 
     pge::CoordinateFramePtr frame;

@@ -4,7 +4,7 @@
 #include "Building.hh"
 #include "Citizen.hh"
 #include "Coordinate.hh"
-#include "RoadNetwork.hh"
+#include "MapPoint.hh"
 #include "Tile.hh"
 #include <core_utils/CoreObject.hh>
 #include <functional>
@@ -16,7 +16,9 @@
 namespace pharaoh {
 
 class Map;
+using TileProcess     = std::function<void(const MapPoint &pos, Tile &, Map &)>;
 using BuildingProcess = std::function<void(const Index, Building &, Map &)>;
+using CitizenProcess  = std::function<void(const Index, Citizen &, Map &)>;
 
 class Map : public utils::CoreObject
 {
@@ -25,39 +27,41 @@ class Map : public utils::CoreObject
 
   auto w() const noexcept -> int;
   auto h() const noexcept -> int;
-  auto at(const int x, const int y) const -> const Tile &;
-  auto citizensBegin() const noexcept -> std::map<Index, Citizen>::const_iterator;
-  auto citizensEnd() const noexcept -> std::map<Index, Citizen>::const_iterator;
 
+  bool existsBuilding(const Index id) const noexcept;
   auto building(const Index id) const -> const Building &;
-  auto spawn(const building::Type type, const int x, const int y) -> Index;
-  bool demolish(const int x, const int y);
-  bool isBuildingConnectedToRoad(const Index id) const;
-  auto spawnPointForBuilding(const Index id) const noexcept -> utils::Point2f;
-  void process(const BuildingProcess &process);
+  auto spawn(const building::Type type, const MapPoint &pos) -> Index;
+  bool demolish(const MapPoint &pos);
 
+  bool existsCitizen(const Index id) const noexcept;
   auto citizen(const Index id) const -> const Citizen &;
   auto spawn(const citizen::Type type,
              const float x,
              const float y,
              std::optional<Index> homeBuilding) -> Index;
 
+  auto entryPoint() const noexcept -> MapPoint;
+  auto exitPoint() const noexcept -> MapPoint;
+
+  void process(const TileProcess &process);
+  void process(const BuildingProcess &process);
+  void process(const CitizenProcess &process);
+
   private:
   Coordinate m_coords;
   std::vector<Tile> m_tiles{};
 
+  MapPoint m_entryPoint{};
+  MapPoint m_exitPoint{};
+
   Index m_nextBuildingId{};
   std::map<Index, Building> m_buildings{};
-
-  RoadNetwork m_roadNewtork{};
 
   Index m_nextCitizenId{};
   std::map<Index, Citizen> m_citizens{};
 
-  auto at(const int x, const int y) -> Tile &;
+  auto at(const MapPoint &pos) -> Tile &;
   void initialize();
-
-  auto building(const Index id) -> Building &;
 
   void handleBuildingSpawned(const Building &b) noexcept;
   void handleBuildingDemolished(const Building &b) noexcept;

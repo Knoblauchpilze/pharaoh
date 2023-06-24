@@ -1,19 +1,20 @@
 
 #include "Scenario.hh"
-#include "CitizenService.hh"
+#include "Migrants.hh"
 #include <maths_utils/Point2.hh>
 
 namespace pharaoh {
 constexpr auto ALLOWED_OVERDRAFT = -150;
 enum Tick
 {
-  CITIZEN_GENERATION_TICK = 0,
+  TICK_MIGRANT_UPDATE = 0, // 23
 };
 
 Scenario::Scenario()
   : utils::CoreObject("scenario")
 {
   setService("pharaoh");
+  initializeServices();
 }
 
 auto Scenario::name() const noexcept -> std::string
@@ -21,7 +22,7 @@ auto Scenario::name() const noexcept -> std::string
   return m_name;
 }
 
-auto Scenario::map() const noexcept -> const Map &
+auto Scenario::map() noexcept -> Map &
 {
   return m_map;
 }
@@ -39,15 +40,15 @@ auto Scenario::gold() const noexcept -> int
 void Scenario::step()
 {
   info("Processing tick " + m_date.str());
-  CitizenService cg{};
 
-  switch (m_date.t())
+  const auto service = m_services.find(m_date.t());
+  if (service == m_services.end())
   {
-    case CITIZEN_GENERATION_TICK:
-      cg.generate(m_map);
-      break;
-    default:
-      break;
+    info("No service for tick " + std::to_string(m_date.t()));
+  }
+  else
+  {
+    service->second->run(m_map);
   }
 
   m_date.tick();
@@ -65,8 +66,8 @@ void Scenario::spawn(const building::Type type, float x, float y)
     return;
   }
 
-  utils::Point2i pos{static_cast<int>(x), static_cast<int>(y)};
-  auto id = m_map.spawn(type, pos.x(), pos.y());
+  MapPoint pos{static_cast<int>(x), static_cast<int>(y)};
+  auto id = m_map.spawn(type, pos);
   if (id != INVALID_INDEX)
   {
     info("Used " + std::to_string(cost) + " for " + building::str(type));
@@ -77,11 +78,16 @@ void Scenario::spawn(const building::Type type, float x, float y)
 
 void Scenario::demolish(float x, float y)
 {
-  utils::Point2i pos{static_cast<int>(x), static_cast<int>(y)};
-  if (m_map.demolish(pos.x(), pos.y()))
+  MapPoint pos{static_cast<int>(x), static_cast<int>(y)};
+  if (m_map.demolish(pos))
   {
-    log("Demolished at " + pos.toString());
+    log("Demolished at " + pos.str());
   }
+}
+
+void Scenario::initializeServices()
+{
+  m_services[TICK_MIGRANT_UPDATE] = std::make_unique<services::Migrants>();
 }
 
 } // namespace pharaoh

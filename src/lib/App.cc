@@ -24,18 +24,11 @@ inline auto spriteIdFromBuilding(const pharaoh::Building &b) noexcept -> olc::vi
   switch (b.type)
   {
     case pharaoh::building::Type::ROAD:
-      return olc::vi2d{0, 0};
+      return olc::vi2d{1, 0};
     case pharaoh::building::Type::HOUSE:
-      return olc::vi2d{1, b.population > 0 ? 0 : 1};
-    case pharaoh::building::Type::GRANARY:
-      return olc::vi2d{4, 0};
-    case pharaoh::building::Type::FARM_FIG:
-      return olc::vi2d{3, 0};
-    case pharaoh::building::Type::BAZAAR:
-      return olc::vi2d{2, 0};
-    case pharaoh::building::Type::RUIN:
+      return olc::vi2d{0, b.population > 0 ? 1 : 0};
     default:
-      return olc::vi2d{5, 0};
+      return olc::vi2d{1, 1};
   }
 }
 
@@ -43,13 +36,7 @@ inline auto spriteIdFromCitizen(const pharaoh::citizen::Type &type) noexcept -> 
 {
   switch (type)
   {
-    case pharaoh::citizen::Type::GRANARY:
-      return 1;
-    case pharaoh::citizen::Type::FARMER:
-      return 2;
-    case pharaoh::citizen::Type::BAZAAR:
-      return 3;
-    case pharaoh::citizen::Type::LABOR_SEEKER:
+    case pharaoh::citizen::Type::SETTLER:
     default:
       return 0;
   }
@@ -150,13 +137,13 @@ void App::loadResources()
   sprites::PackDesc packBuilding;
   packBuilding.file   = "data/tiles/building.png";
   packBuilding.sSize  = {TEXTURE_PIXELS_SIZE, TEXTURE_PIXELS_SIZE};
-  packBuilding.layout = {6, 2};
+  packBuilding.layout = {2, 2};
   m_buildingPackId    = m_packs->registerPack(packBuilding);
 
   sprites::PackDesc packCitizen;
   packCitizen.file   = "data/tiles/citizen.png";
   packCitizen.sSize  = {TEXTURE_PIXELS_SIZE, TEXTURE_PIXELS_SIZE};
-  packCitizen.layout = {6, 1};
+  packCitizen.layout = {1, 1};
   m_citizenPackId    = m_packs->registerPack(packCitizen);
 }
 
@@ -337,88 +324,71 @@ inline void App::renderMap(const CoordinateFrame &cf)
 
 inline void App::renderTerrain(const CoordinateFrame &cf)
 {
-  const auto &city = m_game->map();
+  const auto renderTile =
+    [this, &cf](const pharaoh::MapPoint &pos, const pharaoh::Tile &t, const pharaoh::Map & /*m*/) {
+      SpriteDesc s;
+      s.radius      = 1.0f;
+      s.sprite.pack = m_terrainPackId;
+      s.sprite.tint = olc::WHITE;
 
-  SpriteDesc t;
-  t.radius      = 1.0f;
-  t.sprite.pack = m_terrainPackId;
-  t.sprite.tint = olc::WHITE;
+      s.x = pos.x;
+      s.y = pos.y;
 
-  t.sprite.sprite.y = 0;
+      s.sprite.sprite.x = spriteIdFromTerrain(t);
+      s.sprite.sprite.y = 0;
 
-  for (auto y = 0; y < city.h(); ++y)
-  {
-    for (auto x = 0; x < city.w(); ++x)
-    {
-      t.x = x;
-      t.y = y;
+      drawWarpedSprite(s, cf);
+    };
 
-      const auto &tile  = city.at(x, y);
-      t.sprite.sprite.x = spriteIdFromTerrain(tile);
-
-      drawWarpedSprite(t, cf);
-    }
-  }
+  auto &city = m_game->map();
+  city.process(renderTile);
 }
 
 inline void App::renderBuildings(const CoordinateFrame &cf)
 {
-  const auto &city = m_game->map();
+  const auto renderBuilding = [this, &cf](const pharaoh::Index /*id*/,
+                                          const pharaoh::Building &b,
+                                          const pharaoh::Map & /*m*/) {
+    SpriteDesc s;
+    s.radius      = 1.0f;
+    s.sprite.pack = m_buildingPackId;
+    s.sprite.tint = olc::WHITE;
 
-  SpriteDesc t;
-  t.radius      = 1.0f;
-  t.sprite.pack = m_buildingPackId;
-  t.sprite.tint = olc::WHITE;
+    s.x = b.pos.x;
+    s.y = b.pos.y;
 
-  for (int y = 0; y < city.h(); ++y)
-  {
-    for (int x = 0; x < city.w(); ++x)
-    {
-      const auto &tile = city.at(x, y);
-      if (!tile.isBuilding())
-      {
-        continue;
-      }
+    const auto sp     = spriteIdFromBuilding(b);
+    s.sprite.sprite.x = sp.x;
+    s.sprite.sprite.y = sp.y;
 
-      t.x = x;
-      t.y = y;
+    drawWarpedSprite(s, cf);
+  };
 
-      const auto &b     = city.building(tile.buildingId);
-      const auto sp     = spriteIdFromBuilding(b);
-      t.sprite.sprite.x = sp.x;
-      t.sprite.sprite.y = sp.y;
-
-      drawWarpedSprite(t, cf);
-    }
-  }
+  auto &city = m_game->map();
+  city.process(renderBuilding);
 }
 
 inline void App::renderCitizens(const CoordinateFrame &cf)
 {
-  const auto &city = m_game->map();
+  const auto renderCitizen = [this, &cf](const pharaoh::Index /*id*/,
+                                         const pharaoh::Citizen &c,
+                                         const pharaoh::Map & /*m*/) {
+    SpriteDesc s;
+    s.radius      = 1.0f;
+    s.sprite.pack = m_citizenPackId;
+    s.sprite.tint = olc::WHITE;
 
-  auto it        = city.citizensBegin();
-  const auto end = city.citizensEnd();
+    s.x = c.x;
+    s.y = c.y;
 
-  SpriteDesc t;
-  t.radius      = 1.0f;
-  t.sprite.pack = m_citizenPackId;
-  t.sprite.tint = olc::WHITE;
+    s.sprite.sprite.x = spriteIdFromCitizen(c.type);
+    s.sprite.sprite.y = 0;
 
-  t.sprite.sprite.y = 0;
+    drawWarpedSprite(s, cf);
+  };
 
-  while (it != end)
-  {
-    const auto &c = it->second;
-    t.x           = c.x;
-    t.y           = c.y;
-
-    t.sprite.sprite.x = spriteIdFromCitizen(c.type);
-
-    drawWarpedSprite(t, cf);
-
-    ++it;
-  }
+  auto &city = m_game->map();
+  city.process(renderCitizen);
 }
 
 } // namespace pge

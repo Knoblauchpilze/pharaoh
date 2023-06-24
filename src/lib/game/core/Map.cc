@@ -23,29 +23,14 @@ auto Map::h() const noexcept -> int
   return m_coords.h();
 }
 
-auto Map::at(const int x, const int y) const -> const Tile &
+bool Map::existsBuilding(const Index id) const noexcept
 {
-  if (!m_coords.valid(x, y))
-  {
-    error("Failed to get tile " + m_coords.str(x, y), "Dimensions are " + m_coords.str());
-  }
-
-  return m_tiles.at(m_coords.linear(x, y));
-}
-
-auto Map::citizensBegin() const noexcept -> std::map<Index, Citizen>::const_iterator
-{
-  return m_citizens.begin();
-}
-
-auto Map::citizensEnd() const noexcept -> std::map<Index, Citizen>::const_iterator
-{
-  return m_citizens.end();
+  return m_buildings.contains(id);
 }
 
 auto Map::building(const Index id) const -> const Building &
 {
-  if (!m_buildings.contains(id))
+  if (!existsBuilding(id))
   {
     error("Failed to get building " + std::to_string(id));
   }
@@ -53,28 +38,27 @@ auto Map::building(const Index id) const -> const Building &
   return m_buildings.at(id);
 }
 
-auto Map::spawn(const building::Type type, const int x, const int y) -> Index
+auto Map::spawn(const building::Type type, const MapPoint &pos) -> Index
 {
-  auto &tile = at(x, y);
+  auto &tile = at(pos);
   if (tile.type == terrain::Type::WATER)
   {
-    warn("Can't build " + building::str(type), m_coords.str(x, y) + " is water");
+    warn("Can't build " + building::str(type), pos.str() + " is water");
     return INVALID_INDEX;
   }
   if (tile.isBuilding())
   {
-    warn("Can't build " + building::str(type), m_coords.str(x, y) + " already has a building");
+    warn("Can't build " + building::str(type), pos.str() + " already has a building");
     return INVALID_INDEX;
   }
   if (tile.floodable && !building::isBuildableOnFloodablePlain(type))
   {
-    warn("Can't build " + building::str(type), m_coords.str(x, y) + " is floodable");
+    warn("Can't build " + building::str(type), pos.str() + " is floodable");
     return INVALID_INDEX;
   }
 
   tile.buildingId              = m_nextBuildingId;
-  auto b                       = newBuilding(type, x, y);
-  b.employees                  = building::workforce(type);
+  auto b                       = newBuilding(type, pos);
   m_buildings[tile.buildingId] = b;
   ++m_nextBuildingId;
 
@@ -83,17 +67,17 @@ auto Map::spawn(const building::Type type, const int x, const int y) -> Index
   return tile.buildingId;
 }
 
-bool Map::demolish(const int x, const int y)
+bool Map::demolish(const MapPoint &pos)
 {
-  auto &tile = at(x, y);
-  if (!tile.isBuilding())
+  auto &tile = at(pos);
+  if (!tile.isBuilding() || !existsBuilding(tile.buildingId))
   {
-    warn("Nothing to demolish at " + m_coords.str(x, y));
+    warn("Nothing to demolish at " + pos.str());
     return false;
   }
 
-  const Building b = m_buildings.at(tile.buildingId);
-  if (auto removed = m_buildings.erase(tile.buildingId); removed != 1)
+  const Building b = building(tile.buildingId);
+  if (const auto removed = m_buildings.erase(tile.buildingId); removed != 1)
   {
     warn("Removed " + std::to_string(removed) + " building(s) with id "
          + std::to_string(tile.buildingId));
@@ -106,41 +90,14 @@ bool Map::demolish(const int x, const int y)
   return true;
 }
 
-bool Map::isBuildingConnectedToRoad(const Index id) const
+bool Map::existsCitizen(const Index id) const noexcept
 {
-  if (!m_buildings.contains(id))
-  {
-    error("Failed to assert building " + std::to_string(id) + " connectivity");
-  }
-
-  const auto &b = m_buildings.at(id);
-
-  return m_roadNewtork.isConnectedToRoad(b.x, b.y);
-}
-
-auto Map::spawnPointForBuilding(const Index id) const noexcept -> utils::Point2f
-{
-  if (!m_buildings.contains(id))
-  {
-    error("Failed to find building " + std::to_string(id) + " spawn point");
-  }
-
-  const auto &b = m_buildings.at(id);
-
-  return utils::Point2f{1.0f * b.x, 1.0f * b.y};
-}
-
-void Map::process(const BuildingProcess &process)
-{
-  for (auto &b : m_buildings)
-  {
-    process(b.first, b.second, *this);
-  }
+  return m_citizens.contains(id);
 }
 
 auto Map::citizen(const Index id) const -> const Citizen &
 {
-  if (!m_citizens.contains(id))
+  if (!existsCitizen(id))
   {
     error("Failed to get citizen " + std::to_string(id));
   }
@@ -157,9 +114,12 @@ auto Map::spawn(const citizen::Type type,
   auto c  = newCitizen(type, x, y);
   if (homeBuilding)
   {
+    if (!existsBuilding(*homeBuilding))
+    {
+      error("Failed to spawn " + c.str(), "Invalid home building " + std::to_string(*homeBuilding));
+    }
+
     c.homeBuilding = *homeBuilding;
-    auto &b        = building(c.homeBuilding);
-    b.workers.insert(id);
   }
   m_citizens[id] = c;
   ++m_nextCitizenId;
@@ -167,14 +127,48 @@ auto Map::spawn(const citizen::Type type,
   return id;
 }
 
-auto Map::at(const int x, const int y) -> Tile &
+auto Map::entryPoint() const noexcept -> MapPoint
 {
-  if (!m_coords.valid(x, y))
+  return m_entryPoint;
+}
+
+auto Map::exitPoint() const noexcept -> MapPoint
+{
+  return m_exitPoint;
+}
+
+void Map::process(const TileProcess &process)
+{
+  for (auto id = 0u; id < m_tiles.size(); ++id)
   {
-    error("Failed to get tile " + m_coords.str(x, y), "Dimensions are " + m_coords.str());
+    process(m_coords.to2d(id), m_tiles[id], *this);
+  }
+}
+
+void Map::process(const BuildingProcess &process)
+{
+  for (auto &b : m_buildings)
+  {
+    process(b.first, b.second, *this);
+  }
+}
+
+void Map::process(const CitizenProcess &process)
+{
+  for (auto &c : m_citizens)
+  {
+    process(c.first, c.second, *this);
+  }
+}
+
+auto Map::at(const MapPoint &pos) -> Tile &
+{
+  if (!m_coords.valid(pos))
+  {
+    error("Failed to get tile " + pos.str(), "Dimensions are " + m_coords.str());
   }
 
-  return m_tiles.at(m_coords.linear(x, y));
+  return m_tiles.at(m_coords.linear(pos));
 }
 
 void Map::initialize()
@@ -186,62 +180,46 @@ void Map::initialize()
   {
     for (auto x = 0; x < 1; ++x)
     {
-      at(x, y) = newTile(terrain::Type::WATER);
+      at(MapPoint{x, y}) = newTile(terrain::Type::WATER);
     }
 
     if (y % 2 == 0)
     {
-      at(1, y) = newTile(terrain::Type::WATER);
+      at(MapPoint{1, y}) = newTile(terrain::Type::WATER);
     }
     else
     {
-      at(1, y) = newFloodablePlain();
+      at(MapPoint{1, y}) = newFloodablePlain();
     }
 
     for (auto x = 2; x < 3; ++x)
     {
-      at(x, y) = newFloodablePlain();
+      at(MapPoint{x, y}) = newFloodablePlain();
     }
 
     if (y % 2 == 0)
     {
-      at(3, y) = newFloodablePlain();
+      at(MapPoint{3, y}) = newFloodablePlain();
     }
   }
 
+  // Entry points.
+  m_entryPoint = {7, 0};
+  m_exitPoint  = {7, 7};
+
   // Buildings.
-  spawn(building::Type::BAZAAR, 3, 4);
-  spawn(building::Type::FARM_FIG, 4, 3);
-  spawn(building::Type::GRANARY, 4, 4);
-  spawn(building::Type::HOUSE, 4, 5);
-  spawn(building::Type::ROAD, 5, 6);
-  spawn(building::Type::RUIN, 5, 7);
-}
-
-auto Map::building(const Index id) -> Building &
-{
-  if (!m_buildings.contains(id))
-  {
-    error("Failed to get building " + std::to_string(id));
-  }
-
-  return m_buildings.at(id);
+  spawn(building::Type::HOUSE, MapPoint{4, 5});
+  spawn(building::Type::ROAD, MapPoint{5, 6});
 }
 
 void Map::handleBuildingSpawned(const Building &b) noexcept
 {
-  if (b.type == building::Type::ROAD)
-  {
-    m_roadNewtork.addToNetwork(b.x, b.y);
-  }
+  info("Spawned " + b.str());
 }
 
 void Map::handleBuildingDemolished(const Building &b) noexcept
 {
-  if (b.type == building::Type::ROAD)
-  {
-    m_roadNewtork.removeFromNetwork(b.x, b.y);
-  }
+  info("Demolished " + b.str());
 }
 
 } // namespace pharaoh

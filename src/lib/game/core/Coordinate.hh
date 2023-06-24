@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "MapPoint.hh"
 #include <string>
 #include <utility>
 
@@ -16,9 +17,11 @@ class Coordinate
   auto count() const noexcept -> int;
 
   bool valid(int x, int y) const noexcept;
+  bool valid(const MapPoint &mp) const noexcept;
   bool valid(int index) const noexcept;
   auto linear(int x, int y) const noexcept -> int;
-  auto to2d(int linear) const noexcept -> std::pair<int, int>;
+  auto linear(const MapPoint &mp) const noexcept -> int;
+  auto to2d(int linear) const noexcept -> MapPoint;
 
   auto str() const noexcept -> std::string;
   auto str(int x, int y) const noexcept -> std::string;

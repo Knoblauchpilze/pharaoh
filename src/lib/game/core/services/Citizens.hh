@@ -22,8 +22,6 @@ class Citizens : public Service
   void initializeRunners();
 
   void simulateCitizen(const Index id, Citizen &c, Map &city) const;
-
-  void killIfNeeded(const Index id, Citizen &c, Map &city) const noexcept;
   void performAction(const Index id, Citizen &c, Map &city) const noexcept;
 };
 

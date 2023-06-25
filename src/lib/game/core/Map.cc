@@ -112,13 +112,12 @@ auto Map::citizen(const Index id) const -> const Citizen &
 }
 
 auto Map::spawn(const citizen::Type type,
-                const float x,
-                const float y,
+                const MapPointf &pos,
                 const std::optional<Index> &homeBuilding,
                 const std::optional<CitizenInit> &init) -> Index
 {
   auto id        = m_nextCitizenId;
-  auto c         = newCitizen(type, x, y);
+  auto c         = newCitizen(type, pos);
   c.homeBuilding = homeBuilding;
   if (homeBuilding)
   {
@@ -180,6 +179,17 @@ void Map::process(const TileProcess &process)
   }
 }
 
+void Map::process(const Index id, const BuildingProcess &process)
+{
+  if (!existsBuilding(id))
+  {
+    error("Failed to get building " + std::to_string(id));
+  }
+
+  auto &b = m_buildings.at(id);
+  process(id, b, *this);
+}
+
 void Map::process(const BuildingProcess &process)
 {
   for (auto &b : m_buildings)
@@ -236,6 +246,11 @@ void Map::initialize()
     {
       at(MapPoint{3, y}) = newFloodablePlain();
     }
+  }
+
+  for (auto x = 0; x < 8; ++x)
+  {
+    at(MapPoint{x, 2}) = newTile(terrain::Type::WATER);
   }
 
   // Entry points.

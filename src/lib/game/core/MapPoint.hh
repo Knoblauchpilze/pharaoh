@@ -5,15 +5,19 @@
 
 namespace pharaoh {
 
-struct MapPoint
+template<typename Coordinate>
+struct MapPointGeneric
 {
-  int x;
-  int y;
+  Coordinate x;
+  Coordinate y;
 
   auto str() const noexcept -> std::string
   {
     return std::to_string(x) + "x" + std::to_string(y);
   }
 };
+
+using MapPoint  = MapPointGeneric<int>;
+using MapPointf = MapPointGeneric<float>;
 
 } // namespace pharaoh

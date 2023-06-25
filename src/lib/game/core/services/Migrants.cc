@@ -20,10 +20,13 @@ void Migrants::generateMigrants(Map &city) const noexcept
   const auto entry = city.entryPoint();
   for (const auto &house : emptyHouses)
   {
-    city.spawn(citizen::Type::IMMIGRANT, 1.0f * entry.x, 1.0f * entry.y, house, [](Citizen &c) {
-      c.population = SETTLER_POPULATION;
-      c.action     = {citizen::Action::IMMIGRANT_CREATED};
-    });
+    city.spawn(citizen::Type::IMMIGRANT,
+               MapPointf{1.0f * entry.x, 1.0f * entry.y},
+               house,
+               [](Citizen &c) {
+                 c.population = SETTLER_POPULATION;
+                 c.action     = {citizen::Action::IMMIGRANT_CREATED};
+               });
     log("Spawned settler at " + entry.str());
   }
 }

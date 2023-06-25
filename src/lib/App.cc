@@ -378,8 +378,8 @@ inline void App::renderCitizens(const CoordinateFrame &cf)
     s.sprite.pack = m_citizenPackId;
     s.sprite.tint = olc::WHITE;
 
-    s.x = c.x;
-    s.y = c.y;
+    s.x = c.pos.x;
+    s.y = c.pos.y;
 
     s.sprite.sprite.x = spriteIdFromCitizen(c.type);
     s.sprite.sprite.y = 0;

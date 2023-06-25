@@ -1,5 +1,6 @@
 
 #include "Scenario.hh"
+#include "Citizens.hh"
 #include "Migrants.hh"
 #include <maths_utils/Point2.hh>
 
@@ -51,6 +52,8 @@ void Scenario::step()
     service->second->run(m_map);
   }
 
+  simulateCitizens();
+
   m_date.tick();
 }
 
@@ -87,6 +90,37 @@ void Scenario::demolish(float x, float y)
 void Scenario::initializeServices()
 {
   m_services[TICK_MIGRANT_UPDATE] = std::make_unique<services::Migrants>();
+}
+
+namespace {
+auto removeDeadCitizens(Map &city) -> int
+{
+  std::vector<Index> citizensToRemove;
+  city.process([&citizensToRemove](const Index id, Citizen &c, const Map & /*city*/) {
+    if (c.state == citizen::State::DEAD)
+    {
+      citizensToRemove.push_back(id);
+    }
+  });
+
+  for (const auto &id : citizensToRemove)
+  {
+    city.kill(id);
+  }
+
+  return citizensToRemove.size();
+}
+} // namespace
+
+void Scenario::simulateCitizens() noexcept
+{
+  services::Citizens citizens;
+  citizens.run(m_map);
+
+  if (const auto removed = removeDeadCitizens(m_map); removed > 0)
+  {
+    log("Cleaned " + std::to_string(removed) + " citizen(s)");
+  }
 }
 
 } // namespace pharaoh

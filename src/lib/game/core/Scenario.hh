@@ -36,6 +36,7 @@ class Scenario : public utils::CoreObject
   std::unordered_map<Tick, ServicePtr> m_services{};
 
   void initializeServices();
+  void simulateCitizens() noexcept;
 };
 
 } // namespace pharaoh

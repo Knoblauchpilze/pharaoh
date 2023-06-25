@@ -36,7 +36,7 @@ inline auto spriteIdFromCitizen(const pharaoh::citizen::Type &type) noexcept -> 
 {
   switch (type)
   {
-    case pharaoh::citizen::Type::SETTLER:
+    case pharaoh::citizen::Type::IMMIGRANT:
     default:
       return 0;
   }

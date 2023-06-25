@@ -117,17 +117,16 @@ auto Map::spawn(const citizen::Type type,
                 const std::optional<Index> &homeBuilding,
                 const std::optional<CitizenInit> &init) -> Index
 {
-  auto id = m_nextCitizenId;
-  auto c  = newCitizen(type, x, y);
+  auto id        = m_nextCitizenId;
+  auto c         = newCitizen(type, x, y);
+  c.homeBuilding = homeBuilding;
   if (homeBuilding)
   {
     if (!existsBuilding(*homeBuilding))
     {
       error("Failed to spawn " + c.str(), "Invalid home building " + std::to_string(*homeBuilding));
     }
-    auto &b = m_buildings.at(id);
-
-    c.homeBuilding = *homeBuilding;
+    auto &b = m_buildings.at(*homeBuilding);
     b.citizens.insert(id);
   }
   if (init)
@@ -138,6 +137,29 @@ auto Map::spawn(const citizen::Type type,
   ++m_nextCitizenId;
 
   return id;
+}
+
+bool Map::kill(const Index id)
+{
+  if (!existsCitizen(id))
+  {
+    warn("No citizen found with id " + std::to_string(id));
+    return false;
+  }
+
+  const Citizen c = citizen(id);
+  if (const auto removed = m_citizens.erase(id); removed != 1)
+  {
+    warn("Removed " + std::to_string(removed) + " citizen(s) with id " + std::to_string(id));
+  }
+
+  auto count = 0;
+  process([&id, &count](const Index /*id*/, Building &b, const Map & /*city*/) {
+    count += b.citizens.erase(id);
+  });
+  log("Removed citizen " + c.str() + " from " + std::to_string(count) + " building(s)");
+
+  return true;
 }
 
 auto Map::entryPoint() const noexcept -> MapPoint

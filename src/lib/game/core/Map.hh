@@ -44,6 +44,7 @@ class Map : public utils::CoreObject
              const float y,
              const std::optional<Index> &homeBuilding,
              const std::optional<CitizenInit> &init) -> Index;
+  bool kill(const Index id);
 
   auto entryPoint() const noexcept -> MapPoint;
   auto exitPoint() const noexcept -> MapPoint;

@@ -20,6 +20,9 @@ using TileProcess     = std::function<void(const MapPoint &pos, Tile &, Map &)>;
 using BuildingProcess = std::function<void(const Index, Building &, Map &)>;
 using CitizenProcess  = std::function<void(const Index, Citizen &, Map &)>;
 
+using BuildingInit = std::function<void(Building &)>;
+using CitizenInit  = std::function<void(Citizen &)>;
+
 class Map : public utils::CoreObject
 {
   public:
@@ -30,7 +33,8 @@ class Map : public utils::CoreObject
 
   bool existsBuilding(const Index id) const noexcept;
   auto building(const Index id) const -> const Building &;
-  auto spawn(const building::Type type, const MapPoint &pos) -> Index;
+  auto spawn(const building::Type type, const MapPoint &pos, const std::optional<BuildingInit> &init)
+    -> Index;
   bool demolish(const MapPoint &pos);
 
   bool existsCitizen(const Index id) const noexcept;
@@ -38,7 +42,8 @@ class Map : public utils::CoreObject
   auto spawn(const citizen::Type type,
              const float x,
              const float y,
-             std::optional<Index> homeBuilding) -> Index;
+             const std::optional<Index> &homeBuilding,
+             const std::optional<CitizenInit> &init) -> Index;
 
   auto entryPoint() const noexcept -> MapPoint;
   auto exitPoint() const noexcept -> MapPoint;

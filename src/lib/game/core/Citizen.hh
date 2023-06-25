@@ -21,6 +21,7 @@ struct Citizen
   float x;
   float y;
   Index homeBuilding{INVALID_INDEX};
+  int population{0};
 
   auto str() const noexcept -> std::string;
 };

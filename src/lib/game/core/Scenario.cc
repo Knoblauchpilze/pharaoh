@@ -67,12 +67,11 @@ void Scenario::spawn(const building::Type type, float x, float y)
   }
 
   MapPoint pos{static_cast<int>(x), static_cast<int>(y)};
-  auto id = m_map.spawn(type, pos);
+  auto id = m_map.spawn(type, pos, {});
   if (id != INVALID_INDEX)
   {
-    info("Used " + std::to_string(cost) + " for " + building::str(type));
-
     m_gold -= cost;
+    info("Used " + std::to_string(cost) + " for " + building::str(type));
   }
 }
 

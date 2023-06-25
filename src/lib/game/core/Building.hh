@@ -29,6 +29,7 @@ struct Building
 
   /// The variables below are updated during each tick of the game.
   int population{0};
+  std::unordered_set<Index> citizens{};
 
   auto str() const noexcept -> std::string;
 };

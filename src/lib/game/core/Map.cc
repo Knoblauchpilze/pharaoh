@@ -38,7 +38,9 @@ auto Map::building(const Index id) const -> const Building &
   return m_buildings.at(id);
 }
 
-auto Map::spawn(const building::Type type, const MapPoint &pos) -> Index
+auto Map::spawn(const building::Type type,
+                const MapPoint &pos,
+                const std::optional<BuildingInit> &init) -> Index
 {
   auto &tile = at(pos);
   if (tile.type == terrain::Type::WATER)
@@ -57,8 +59,12 @@ auto Map::spawn(const building::Type type, const MapPoint &pos) -> Index
     return INVALID_INDEX;
   }
 
-  tile.buildingId              = m_nextBuildingId;
-  auto b                       = newBuilding(type, pos);
+  tile.buildingId = m_nextBuildingId;
+  auto b          = newBuilding(type, pos);
+  if (init)
+  {
+    (*init)(b);
+  }
   m_buildings[tile.buildingId] = b;
   ++m_nextBuildingId;
 
@@ -108,7 +114,8 @@ auto Map::citizen(const Index id) const -> const Citizen &
 auto Map::spawn(const citizen::Type type,
                 const float x,
                 const float y,
-                std::optional<Index> homeBuilding) -> Index
+                const std::optional<Index> &homeBuilding,
+                const std::optional<CitizenInit> &init) -> Index
 {
   auto id = m_nextCitizenId;
   auto c  = newCitizen(type, x, y);
@@ -118,8 +125,14 @@ auto Map::spawn(const citizen::Type type,
     {
       error("Failed to spawn " + c.str(), "Invalid home building " + std::to_string(*homeBuilding));
     }
+    auto &b = m_buildings.at(id);
 
     c.homeBuilding = *homeBuilding;
+    b.citizens.insert(id);
+  }
+  if (init)
+  {
+    (*init)(c);
   }
   m_citizens[id] = c;
   ++m_nextCitizenId;
@@ -208,8 +221,8 @@ void Map::initialize()
   m_exitPoint  = {7, 7};
 
   // Buildings.
-  spawn(building::Type::HOUSE, MapPoint{4, 5});
-  spawn(building::Type::ROAD, MapPoint{5, 6});
+  spawn(building::Type::HOUSE, MapPoint{4, 5}, {});
+  spawn(building::Type::ROAD, MapPoint{5, 6}, {});
 }
 
 void Map::handleBuildingSpawned(const Building &b) noexcept

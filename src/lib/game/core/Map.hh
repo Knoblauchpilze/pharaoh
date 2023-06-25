@@ -40,8 +40,7 @@ class Map : public utils::CoreObject
   bool existsCitizen(const Index id) const noexcept;
   auto citizen(const Index id) const -> const Citizen &;
   auto spawn(const citizen::Type type,
-             const float x,
-             const float y,
+             const MapPointf &pos,
              const std::optional<Index> &homeBuilding,
              const std::optional<CitizenInit> &init) -> Index;
   bool kill(const Index id);
@@ -50,6 +49,7 @@ class Map : public utils::CoreObject
   auto exitPoint() const noexcept -> MapPoint;
 
   void process(const TileProcess &process);
+  void process(const Index id, const BuildingProcess &process);
   void process(const BuildingProcess &process);
   void process(const CitizenProcess &process);
 

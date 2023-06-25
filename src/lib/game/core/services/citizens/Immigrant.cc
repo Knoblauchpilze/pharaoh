@@ -2,32 +2,71 @@
 #include "Immigrant.hh"
 
 namespace pharaoh::services::citizens {
+constexpr auto MOVE_SPEED = 1.0f / 2.0f;
 
 Immigrant::Immigrant()
   : Runner(citizen::Type::IMMIGRANT)
 {}
 
-void Immigrant::simulate(const Index /*id*/, Citizen &c, Map & /*city*/) const
+void Immigrant::simulate(const Data &data) const
 {
-  if (c.state == citizen::State::DEAD)
+  if (data.citizen.state == citizen::State::DEAD)
   {
-    error("Can't simulate " + c.str(), "Citizen already dead");
+    error("Can't simulate " + data.citizen.str(), "Citizen already dead");
   }
 
-  switch (*c.action)
+  if (killIfBuildingIsNotValid(data))
+  {
+    return;
+  }
+
+  switch (*data.citizen.action)
   {
     case citizen::Action::IMMIGRANT_CREATED:
-      c.action = citizen::Action::IMMIGRANT_ARRIVING;
+      data.citizen.action = citizen::Action::IMMIGRANT_ARRIVING;
       break;
     case citizen::Action::IMMIGRANT_ARRIVING:
-      warn(citizen::str(*c.action) + " not handled yet");
+      goToBuilding(data);
       break;
     case citizen::Action::IMMIGRANT_ENTERING_HOUSE:
-      warn(citizen::str(*c.action) + " not handled yet");
+      enterBuilding(data);
       break;
     default:
-      c.kill();
+      data.citizen.kill();
   }
+}
+
+bool Immigrant::killIfBuildingIsNotValid(const Data &data) const
+{
+  if (data.citizen.homeBuilding && data.city.existsBuilding(*data.citizen.homeBuilding))
+  {
+    return false;
+  }
+
+  log("Home for " + data.citizen.str() + " does not exist anymore");
+  data.citizen.kill();
+  return true;
+}
+
+void Immigrant::goToBuilding(const Data &data) const
+{
+  const auto &b = data.city.building(*data.citizen.homeBuilding);
+  if (goTo(data, MapPointf{1.0f * b.pos.x, 1.0f * b.pos.y}, MOVE_SPEED))
+  {
+    data.citizen.action = citizen::Action::IMMIGRANT_ENTERING_HOUSE;
+  }
+}
+
+void Immigrant::enterBuilding(const Data &data) const
+{
+  data.city.process(*data.citizen.homeBuilding,
+                    [&data, this](const Index /*id*/, Building &b, const Map & /*city*/) {
+                      b.population += data.citizen.population;
+                      log(data.citizen.str() + " arrived home, population is now "
+                          + std::to_string(b.population));
+                    });
+
+  data.citizen.kill();
 }
 
 } // namespace pharaoh::services::citizens

@@ -46,7 +46,7 @@ auto str(const Action a) noexcept -> std::string
 
 auto Citizen::str() const noexcept -> std::string
 {
-  return citizen::str(type) + "[" + std::to_string(x) + "x" + std::to_string(y) + "]";
+  return citizen::str(type) + "[" + pos.str() + "]";
 }
 
 void Citizen::kill() noexcept
@@ -54,9 +54,9 @@ void Citizen::kill() noexcept
   state = citizen::State::DEAD;
 }
 
-auto newCitizen(const citizen::Type type, const float x, const float y) noexcept -> Citizen
+auto newCitizen(const citizen::Type type, const MapPointf &pos) noexcept -> Citizen
 {
-  return Citizen{.type = type, .x = x, .y = y};
+  return Citizen{.type = type, .pos = pos};
 }
 
 } // namespace pharaoh

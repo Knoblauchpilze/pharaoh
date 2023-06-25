@@ -11,7 +11,11 @@ class Immigrant : public Runner
   Immigrant();
 
   protected:
-  void simulate(const Index id, Citizen &c, Map &city) const override;
+  void simulate(const Data &data) const override;
+
+  bool killIfBuildingIsNotValid(const Data &data) const;
+  void goToBuilding(const Data &data) const;
+  void enterBuilding(const Data &data) const;
 };
 
 } // namespace pharaoh::services::citizens

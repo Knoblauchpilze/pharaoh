@@ -2,7 +2,9 @@
 #pragma once
 
 #include "Index.hh"
+#include "MapPoint.hh"
 #include <optional>
+#include <stack>
 #include <string>
 
 namespace pharaoh {
@@ -36,18 +38,20 @@ auto str(const Action a) noexcept -> std::string;
 struct Citizen
 {
   citizen::Type type{citizen::Type::IMMIGRANT};
-  float x;
-  float y;
+  MapPointf pos;
   std::optional<Index> homeBuilding{};
   int population{0};
 
   std::optional<citizen::Action> action{};
   citizen::State state{citizen::State::ALIVE};
 
+  std::optional<MapPointf> destination{};
+  std::stack<MapPointf> path{};
+
   auto str() const noexcept -> std::string;
   void kill() noexcept;
 };
 
-auto newCitizen(const citizen::Type type, const float x, const float y) noexcept -> Citizen;
+auto newCitizen(const citizen::Type type, const MapPointf &pos) noexcept -> Citizen;
 
 } // namespace pharaoh

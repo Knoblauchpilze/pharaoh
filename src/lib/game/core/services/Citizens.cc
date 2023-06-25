@@ -28,17 +28,7 @@ void Citizens::simulateCitizen(const Index id, Citizen &c, Map &city) const
     return;
   }
 
-  killIfNeeded(id, c, city);
   performAction(id, c, city);
-}
-
-void Citizens::killIfNeeded(const Index /*id*/, Citizen &c, Map &city) const noexcept
-{
-  if (c.homeBuilding && !city.existsBuilding(*c.homeBuilding))
-  {
-    log("Home for " + c.str() + " does not exist anymore");
-    c.kill();
-  }
 }
 
 void Citizens::performAction(const Index id, Citizen &c, Map &city) const noexcept
@@ -62,7 +52,8 @@ void Citizens::performAction(const Index id, Citizen &c, Map &city) const noexce
     return;
   }
 
-  runner->second->run(id, c, city);
+  auto data = citizens::Data{.id = id, .citizen = c, .city = city};
+  runner->second->run(data);
 }
 
 } // namespace pharaoh::services

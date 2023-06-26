@@ -8,7 +8,7 @@ add_subdirectory (
 	)
 
 target_sources (pharaoh_lib PRIVATE
-	${CMAKE_CURRENT_SOURCE_DIR}/PathFinder.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/LocatorAdaptor.cc
 	${CMAKE_CURRENT_SOURCE_DIR}/Runner.cc
 	${CMAKE_CURRENT_SOURCE_DIR}/Immigrant.cc
 	)

@@ -42,6 +42,17 @@ auto cost(const Type t) noexcept -> int
   }
 }
 
+bool traversable(const Type t) noexcept
+{
+  switch (t)
+  {
+    case Type::ROAD:
+      return true;
+    default:
+      return false;
+  }
+}
+
 } // namespace building
 
 auto Building::str() const noexcept -> std::string

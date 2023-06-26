@@ -23,6 +23,21 @@ auto Map::h() const noexcept -> int
   return m_coords.h();
 }
 
+bool Map::valid(const MapPoint &pos) const noexcept
+{
+  return m_coords.valid(pos);
+}
+
+auto Map::at(const MapPoint &pos) const -> const Tile &
+{
+  if (!m_coords.valid(pos))
+  {
+    error("Failed to get tile " + pos.str(), "Dimensions are " + m_coords.str());
+  }
+
+  return m_tiles.at(m_coords.linear(pos));
+}
+
 bool Map::existsBuilding(const Index id) const noexcept
 {
   return m_buildings.contains(id);
@@ -252,6 +267,9 @@ void Map::initialize()
   {
     at(MapPoint{x, 2}) = newTile(terrain::Type::WATER);
   }
+  at(MapPoint{4, 4}) = newTile(terrain::Type::WATER);
+  at(MapPoint{5, 4}) = newTile(terrain::Type::WATER);
+  at(MapPoint{5, 5}) = newTile(terrain::Type::WATER);
 
   // Entry points.
   m_entryPoint = {7, 0};

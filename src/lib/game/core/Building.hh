@@ -19,6 +19,7 @@ auto str(const Type t) noexcept -> std::string;
 
 bool isBuildableOnFloodablePlain(const Type t) noexcept;
 auto cost(const Type t) noexcept -> int;
+bool traversable(const Type t) noexcept;
 
 } // namespace building
 

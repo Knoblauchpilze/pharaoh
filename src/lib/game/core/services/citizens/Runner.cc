@@ -1,6 +1,7 @@
 
 #include "Runner.hh"
-#include "PathFinder.hh"
+#include "AStar.hh"
+#include "LocatorAdaptor.hh"
 #include <maths_utils/Vector2.hh>
 
 namespace pharaoh::services {
@@ -49,21 +50,24 @@ bool Runner::goTo(const citizens::Data &data, const MapPointf &dest, const float
 
 bool Runner::determinePath(const citizens::Data &data, const MapPointf &dest) const
 {
-  PathFinder finder(data.city);
-  finder.setStart(data.citizen.pos);
-  finder.setEnd(dest);
+  utils::Point2i start{static_cast<int>(data.citizen.pos.x), static_cast<int>(data.citizen.pos.y)};
+  utils::Point2i end{static_cast<int>(dest.x), static_cast<int>(dest.y)};
 
-  const auto path = finder.find({});
+  LocatorAdaptor adaptor(data.city, false);
 
+  astar::AStar finder(start, end, adaptor);
+  auto path = finder.findPath();
   if (!path)
   {
     return false;
   }
 
   data.citizen.destination = dest;
-  for (const auto &pos : *path)
+  path->reverse();
+  for (auto id = 0u; id < path->size(); ++id)
   {
-    data.citizen.path.push(pos);
+    const auto &pos = (*path)[id];
+    data.citizen.path.push(MapPointf{1.0f * pos.x(), 1.0f * pos.y()});
   }
 
   const auto goal = data.citizen.path.top();
@@ -95,7 +99,8 @@ bool Runner::moveOnPath(const citizens::Data &data, const float speed) const
   data.citizen.pos.x = pos.x();
   data.citizen.pos.y = pos.y();
 
-  return d <= ARRIVAL_THRESHOLD;
+  const auto dAfterMove = d - std::min(speed, d);
+  return dAfterMove <= ARRIVAL_THRESHOLD;
 }
 
 } // namespace pharaoh::services

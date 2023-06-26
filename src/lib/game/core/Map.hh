@@ -30,6 +30,9 @@ class Map : public utils::CoreObject
 
   auto w() const noexcept -> int;
   auto h() const noexcept -> int;
+  bool valid(const MapPoint &pos) const noexcept;
+
+  auto at(const MapPoint &pos) const -> const Tile &;
 
   bool existsBuilding(const Index id) const noexcept;
   auto building(const Index id) const -> const Building &;

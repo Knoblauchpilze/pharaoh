@@ -36,18 +36,6 @@ void Immigrant::simulate(const Data &data) const
   }
 }
 
-bool Immigrant::killIfBuildingIsNotValid(const Data &data) const
-{
-  if (data.citizen.homeBuilding && data.city.existsBuilding(*data.citizen.homeBuilding))
-  {
-    return false;
-  }
-
-  log("Home for " + data.citizen.str() + " does not exist anymore");
-  data.citizen.kill();
-  return true;
-}
-
 void Immigrant::goToBuilding(const Data &data) const
 {
   const auto &b = data.city.building(*data.citizen.homeBuilding);

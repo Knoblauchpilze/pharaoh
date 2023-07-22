@@ -10,5 +10,6 @@ add_subdirectory (
 target_sources (pharaoh_lib PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/Service.cc
 	${CMAKE_CURRENT_SOURCE_DIR}/Migrants.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/Figures.cc
 	${CMAKE_CURRENT_SOURCE_DIR}/Citizens.cc
 )

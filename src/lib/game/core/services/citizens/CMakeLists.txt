@@ -11,4 +11,5 @@ target_sources (pharaoh_lib PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/LocatorAdaptor.cc
 	${CMAKE_CURRENT_SOURCE_DIR}/Runner.cc
 	${CMAKE_CURRENT_SOURCE_DIR}/Immigrant.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/LaborSeeker.cc
 	)

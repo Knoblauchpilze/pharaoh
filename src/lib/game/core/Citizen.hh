@@ -11,7 +11,8 @@ namespace pharaoh {
 namespace citizen {
 enum class Type
 {
-  IMMIGRANT
+  IMMIGRANT,
+  LABOR_SEEKER,
 };
 
 auto str(const Type t) noexcept -> std::string;
@@ -29,6 +30,9 @@ enum class Action
   IMMIGRANT_CREATED,
   IMMIGRANT_ARRIVING,
   IMMIGRANT_ENTERING_HOUSE,
+
+  LABOR_SEEKER_ROAMING,
+  LABOR_SEEKER_RETURNING_HOME,
 };
 
 auto str(const Action a) noexcept -> std::string;

@@ -1,6 +1,7 @@
 
 #include "Scenario.hh"
 #include "Citizens.hh"
+#include "Figures.hh"
 #include "Migrants.hh"
 #include <maths_utils/Point2.hh>
 
@@ -8,7 +9,8 @@ namespace pharaoh {
 constexpr auto ALLOWED_OVERDRAFT = -150;
 enum Tick
 {
-  TICK_MIGRANT_UPDATE = 0, // 23
+  TICK_MIGRANT_UPDATE   = 0, // 23
+  TICK_CITIZEN_GENERATE = 1, // 31
 };
 
 Scenario::Scenario()
@@ -89,7 +91,8 @@ void Scenario::demolish(float x, float y)
 
 void Scenario::initializeServices()
 {
-  m_services[TICK_MIGRANT_UPDATE] = std::make_unique<services::Migrants>();
+  m_services[TICK_MIGRANT_UPDATE]   = std::make_unique<services::Migrants>();
+  m_services[TICK_CITIZEN_GENERATE] = std::make_unique<services::Figures>();
 }
 
 namespace {

@@ -1,6 +1,7 @@
 
 #include "Citizens.hh"
 #include "Immigrant.hh"
+#include "LaborSeeker.hh"
 
 namespace pharaoh::services {
 
@@ -17,7 +18,8 @@ void Citizens::run(Map &city) const
 
 void Citizens::initializeRunners()
 {
-  m_runners[citizen::Type::IMMIGRANT] = std::make_unique<citizens::Immigrant>();
+  m_runners[citizen::Type::IMMIGRANT]    = std::make_unique<citizens::Immigrant>();
+  m_runners[citizen::Type::LABOR_SEEKER] = std::make_unique<citizens::LaborSeeker>();
 }
 
 void Citizens::simulateCitizen(const Index id, Citizen &c, Map &city) const

@@ -24,6 +24,18 @@ void Runner::run(const citizens::Data &data) const
   simulate(data);
 }
 
+bool Runner::killIfBuildingIsNotValid(const citizens::Data &data) const
+{
+  if (data.citizen.homeBuilding && data.city.existsBuilding(*data.citizen.homeBuilding))
+  {
+    return false;
+  }
+
+  log("Home for " + data.citizen.str() + " does not exist anymore");
+  data.citizen.kill();
+  return true;
+}
+
 bool Runner::goTo(const citizens::Data &data, const MapPointf &dest, const float speed) const
 {
   if (!data.citizen.destination)

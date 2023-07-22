@@ -5,16 +5,16 @@
 
 namespace pharaoh::services::citizens {
 
-class Immigrant : public Runner
+class LaborSeeker : public Runner
 {
   public:
-  Immigrant();
+  LaborSeeker();
 
   protected:
   void simulate(const Data &data) const override;
 
-  void goToBuilding(const Data &data) const;
-  void enterBuilding(const Data &data) const;
+  void roam(const Data &data) const;
+  void returnHome(const Data &data) const;
 };
 
 } // namespace pharaoh::services::citizens

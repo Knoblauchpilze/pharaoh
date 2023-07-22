@@ -31,6 +31,7 @@ class Runner : public utils::CoreObject
   protected:
   virtual void simulate(const citizens::Data &data) const = 0;
 
+  bool killIfBuildingIsNotValid(const citizens::Data &data) const;
   bool goTo(const citizens::Data &data, const MapPointf &dest, const float speed) const;
   bool determinePath(const citizens::Data &data, const MapPointf &dest) const;
   bool moveOnPath(const citizens::Data &data, const float speed) const;

@@ -263,16 +263,8 @@ void Map::initialize()
     }
   }
 
-  for (auto x = 0; x < 8; ++x)
-  {
-    at(MapPoint{x, 2}) = newTile(terrain::Type::WATER);
-  }
-  at(MapPoint{4, 4}) = newTile(terrain::Type::WATER);
-  at(MapPoint{5, 4}) = newTile(terrain::Type::WATER);
-  at(MapPoint{5, 5}) = newTile(terrain::Type::WATER);
-
   // Entry points.
-  m_entryPoint = {7, 0};
+  m_entryPoint = {5, 2};
   m_exitPoint  = {7, 7};
 
   // Buildings.

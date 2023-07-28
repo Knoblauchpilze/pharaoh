@@ -13,12 +13,14 @@ enum class Type
 {
   ROAD,
   HOUSE,
+  FARM
 };
 
 auto str(const Type t) noexcept -> std::string;
 
 bool isBuildableOnFloodablePlain(const Type t) noexcept;
 auto cost(const Type t) noexcept -> int;
+auto workforce(const Type t) noexcept -> int;
 bool traversable(const Type t) noexcept;
 
 } // namespace building
@@ -31,6 +33,8 @@ struct Building
   /// The variables below are updated during each tick of the game.
   int population{0};
   std::unordered_set<Index> citizens{};
+
+  int workforce{0};
 
   auto str() const noexcept -> std::string;
 };

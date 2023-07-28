@@ -11,6 +11,8 @@ auto str(const Type t) noexcept -> std::string
       return "road";
     case Type::HOUSE:
       return "house";
+    case Type::FARM:
+      return "farm";
     default:
       return "unknown";
   }
@@ -21,6 +23,7 @@ bool isBuildableOnFloodablePlain(const Type t) noexcept
   switch (t)
   {
     case Type::ROAD:
+    case Type::FARM:
       return true;
     case Type::HOUSE:
     default:
@@ -36,6 +39,20 @@ auto cost(const Type t) noexcept -> int
     case Type::ROAD:
       return 4;
     case Type::HOUSE:
+      return 10;
+    case Type::FARM:
+      return 40;
+    default:
+      return 0;
+  }
+}
+
+auto workforce(const Type t) noexcept -> int
+{
+  // https://pharaoh.heavengames.com/buildings/
+  switch (t)
+  {
+    case Type::FARM:
       return 10;
     default:
       return 0;

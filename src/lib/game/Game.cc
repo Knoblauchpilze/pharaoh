@@ -245,6 +245,11 @@ auto Game::generateConstructionMenu(float width, float height) -> std::vector<Me
     [](Game &g) { g.registerAction(game::Action::BUILD, {pharaoh::building::Type::HOUSE}); });
   construction->addMenu(menu);
 
+  menu = generateMenu({}, dummySize, "Farm", "farm", true);
+  menu->setSimpleAction(
+    [](Game &g) { g.registerAction(game::Action::BUILD, {pharaoh::building::Type::FARM}); });
+  construction->addMenu(menu);
+
   menu = generateMenu({},
                       dummySize,
                       "Demolish",

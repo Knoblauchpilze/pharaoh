@@ -27,6 +27,8 @@ inline auto spriteIdFromBuilding(const pharaoh::Building &b) noexcept -> olc::vi
       return olc::vi2d{1, 0};
     case pharaoh::building::Type::HOUSE:
       return olc::vi2d{0, b.population > 0 ? 1 : 0};
+    case pharaoh::building::Type::FARM:
+      return olc::vi2d{2, b.workforce > 0 ? 1 : 0};
     default:
       return olc::vi2d{1, 1};
   }
@@ -137,13 +139,13 @@ void App::loadResources()
   sprites::PackDesc packBuilding;
   packBuilding.file   = "data/tiles/building.png";
   packBuilding.sSize  = {TEXTURE_PIXELS_SIZE, TEXTURE_PIXELS_SIZE};
-  packBuilding.layout = {2, 2};
+  packBuilding.layout = {3, 2};
   m_buildingPackId    = m_packs->registerPack(packBuilding);
 
   sprites::PackDesc packCitizen;
   packCitizen.file   = "data/tiles/citizen.png";
   packCitizen.sSize  = {TEXTURE_PIXELS_SIZE, TEXTURE_PIXELS_SIZE};
-  packCitizen.layout = {1, 1};
+  packCitizen.layout = {2, 1};
   m_citizenPackId    = m_packs->registerPack(packCitizen);
 }
 

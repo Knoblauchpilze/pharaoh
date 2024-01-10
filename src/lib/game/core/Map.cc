@@ -171,7 +171,7 @@ bool Map::kill(const Index id)
   process([&id, &count](const Index /*id*/, Building &b, const Map & /*city*/) {
     count += b.citizens.erase(id);
   });
-  log("Removed citizen " + c.str() + " from " + std::to_string(count) + " building(s)");
+  debug("Removed citizen " + c.str() + " from " + std::to_string(count) + " building(s)");
 
   return true;
 }

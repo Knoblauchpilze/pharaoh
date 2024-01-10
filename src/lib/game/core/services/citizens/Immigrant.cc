@@ -50,8 +50,8 @@ void Immigrant::enterBuilding(const Data &data) const
   data.city.process(*data.citizen.homeBuilding,
                     [&data, this](const Index /*id*/, Building &b, const Map & /*city*/) {
                       b.population += data.citizen.population;
-                      log(data.citizen.str() + " arrived home, population is now "
-                          + std::to_string(b.population));
+                      debug(data.citizen.str() + " arrived home, population is now "
+                            + std::to_string(b.population));
                     });
 
   data.citizen.kill();

@@ -37,7 +37,7 @@ void Citizens::performAction(const Index id, Citizen &c, Map &city) const noexce
 {
   if (!c.action)
   {
-    log(c.str() + " ran out of actions");
+    debug(c.str() + " ran out of actions");
     c.kill();
     return;
   }

@@ -85,7 +85,7 @@ void Scenario::demolish(float x, float y)
   MapPoint pos{static_cast<int>(x), static_cast<int>(y)};
   if (m_map.demolish(pos))
   {
-    log("Demolished at " + pos.str());
+    debug("Demolished at " + pos.str());
   }
 }
 
@@ -122,7 +122,7 @@ void Scenario::simulateCitizens() noexcept
 
   if (const auto removed = removeDeadCitizens(m_map); removed > 0)
   {
-    log("Cleaned " + std::to_string(removed) + " citizen(s)");
+    debug("Cleaned " + std::to_string(removed) + " citizen(s)");
   }
 }
 

@@ -27,7 +27,7 @@ void Migrants::generateMigrants(Map &city) const noexcept
                  c.population = SETTLER_POPULATION;
                  c.action     = {citizen::Action::IMMIGRANT_CREATED};
                });
-    log("Spawned settler at " + entry.str());
+    debug("Spawned settler at " + entry.str());
   }
 }
 

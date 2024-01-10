@@ -3,7 +3,6 @@
 #include "Node.hh"
 
 namespace astar {
-constexpr auto LOG_LEVEL = utils::Level::Verbose;
 
 AStarNodes::AStarNodes()
   : utils::CoreObject("nodes")
@@ -60,10 +59,9 @@ bool AStarNodes::explore(const Node &child, const utils::Point2i &parent, bool a
 
     if (allowLog)
     {
-      log("Updating " + std::to_string(child.p().x()) + "x" + std::to_string(child.p().y())
-            + " from (c " + std::to_string(anc->second.second) + " parent: " + anc->first + ")"
-            + " to (c: " + std::to_string(child.cost()) + " parent is " + pHash + ")",
-          LOG_LEVEL);
+      verbose("Updating " + std::to_string(child.p().x()) + "x" + std::to_string(child.p().y())
+              + " from (c " + std::to_string(anc->second.second) + " parent: " + anc->first + ")"
+              + " to (c: " + std::to_string(child.cost()) + " parent is " + pHash + ")");
     }
   }
 
@@ -112,9 +110,8 @@ auto AStarNodes::reconstruct(const utils::Point2i &end, bool allowLog) const -> 
 
     if (allowLog)
     {
-      log("Registering point " + std::to_string(p.x()) + "x" + std::to_string(p.y()) + " with hash "
-            + h + ", parent is " + it->second.first,
-          LOG_LEVEL);
+      verbose("Registering point " + std::to_string(p.x()) + "x" + std::to_string(p.y())
+              + " with hash " + h + ", parent is " + it->second.first);
     }
 
     // Register this as part of the path.

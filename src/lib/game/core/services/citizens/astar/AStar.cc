@@ -32,7 +32,6 @@ bool pathTooFar(const astar::Path &path, const utils::Point2i &p, float d) noexc
 } // namespace
 
 namespace astar {
-constexpr auto LOG_LEVEL = utils::Level::Verbose;
 
 AStar::AStar(const utils::Point2i &s, const utils::Point2i &e, const Locator &loc)
   : utils::CoreObject("algo")
@@ -52,9 +51,8 @@ auto AStar::findPath(float radius, bool allowLog) const noexcept -> std::optiona
 
   if (allowLog)
   {
-    log("Starting a* at " + std::to_string(m_start.x()) + "x" + std::to_string(m_start.y())
-          + " to reach " + std::to_string(m_end.x()) + "x" + std::to_string(m_end.y()),
-        LOG_LEVEL);
+    verbose("Starting a* at " + std::to_string(m_start.x()) + "x" + std::to_string(m_start.y())
+            + " to reach " + std::to_string(m_end.x()) + "x" + std::to_string(m_end.y()));
   }
 
   // The list of nodes that are currently being explored.
@@ -68,11 +66,10 @@ auto AStar::findPath(float radius, bool allowLog) const noexcept -> std::optiona
 
     if (allowLog)
     {
-      log("Picked node " + std::to_string(current.p().x()) + "x" + std::to_string(current.p().y())
-            + " with c " + std::to_string(current.cost()) + " h is "
-            + std::to_string(current.heuristic()) + " (nodes: " + std::to_string(nodes.opened())
-            + ")",
-          LOG_LEVEL);
+      verbose("Picked node " + std::to_string(current.p().x()) + "x"
+              + std::to_string(current.p().y()) + " with c " + std::to_string(current.cost())
+              + " h is " + std::to_string(current.heuristic())
+              + " (nodes: " + std::to_string(nodes.opened()) + ")");
     }
 
     // In case we reached the end, stop the algorithm.

@@ -31,7 +31,7 @@ bool Runner::killIfBuildingIsNotValid(const citizens::Data &data) const
     return false;
   }
 
-  log("Home for " + data.citizen.str() + " does not exist anymore");
+  debug("Home for " + data.citizen.str() + " does not exist anymore");
   data.citizen.kill();
   return true;
 }
